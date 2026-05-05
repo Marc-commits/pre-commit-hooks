@@ -1,0 +1,45 @@
+# project.pre-commit-hooks.yaml
+# Generic version-consistency hook.
+#
+# Scans all tracked files for version declarations using common patterns:
+#   R scripts    : script_version <- "x.y.z"
+#   Shell scripts: VERSION="x.y.z"  (standalone assignment, start of line)
+#   Dockerfiles  : LABEL version="x.y.z"
+#
+# Fails if more than one distinct version string is found across the repository.
+# Safe to use in any project that follows these conventions; no file names are
+# hardcoded.
+#
+# Prerequisites:
+#   System: bash, git, grep (GNU, with -P/--perl-regexp support)
+
+repos:
+  - repo: local
+    hooks:
+
+      # All version declarations in the repository must carry the same string
+      - id: version-sync
+        name: Version strings must be consistent across the repository
+        entry: |-
+          bash -c '
+            versions=$(
+              git ls-files "*.r" "*.R" 2>/dev/null \
+                | xargs grep -hoP "script_version\s*<-\s*\"\K[0-9]+\.[0-9]+(\.[0-9]+)?" 2>/dev/null || true;
+              git ls-files "*.sh" 2>/dev/null \
+                | xargs grep -hoP "^VERSION=\"\K[0-9]+\.[0-9]+(\.[0-9]+)?" 2>/dev/null || true;
+              git ls-files 2>/dev/null | grep -E "(^|/)Dockerfile([^/]*)$" \
+                | xargs grep -hom1 -oP "version=\"\K[0-9]+\.[0-9]+(\.[0-9]+)?" 2>/dev/null || true;
+            )
+            [ -z "$versions" ] && exit 0
+            unique=$(printf "%s\n" $versions | sort -u)
+            count=$(printf "%s\n" $versions | sort -u | grep -c .)
+            if [ "$count" -gt 1 ]; then
+              echo "FAIL: inconsistent version strings found:"
+              printf "%s\n" $versions | sort
+              exit 1
+            fi
+            echo "version-sync OK: $unique"
+          '
+        language: system
+        pass_filenames: false
+        always_run: true

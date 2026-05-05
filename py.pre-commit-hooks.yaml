@@ -1,0 +1,99 @@
+# py.pre-commit-hooks.yaml
+# Pre-commit hooks for Python files (.py), including marimo notebooks.
+#
+# All .py:        AST validity, whitespace hygiene, debug-statement guard,
+#                 binary guard, private-key detection, git hygiene, metadata
+# Executable .py: shebang must reference python3 / uvx / uv;
+#                 --help, --version and -V must exit 0
+# Marimo notebooks (contain  import marimo  AND  @app.cell):
+#                 uvx marimo check; --help / --version via uv run --script
+# PEP 723 inline deps (# /// script header):
+#                 uv run --script used for --help/--version to resolve deps first
+#
+# Prerequisites:
+#   System: python3, uv (https://docs.astral.sh/uv/), pre-commit
+#           uvx ships with uv and is used for marimo checks
+#
+# Usage:
+#   pre-commit run --all-files --config py.pre-commit-hooks.yaml
+#   pre-commit autoupdate --config py.pre-commit-hooks.yaml
+
+repos:
+
+  # ── Common file-quality gates ──────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-ast
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: check-added-large-files
+      - id: detect-private-key
+      - id: debug-statements
+      # Scoped to .py to avoid false positives in mixed-language repos
+      - id: check-executables-have-shebangs
+        files: '\.py$'
+      - id: check-shebang-scripts-are-executable
+        files: '\.py$'
+
+  # ── Pre-commit manifest validator ──────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit
+    rev: v4.6.0
+    hooks:
+      - id: validate_manifest
+
+  # ── Git hygiene ────────────────────────────────────────────────────────────
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 3.0.0
+    hooks:
+      - id: forbid-binary
+      - id: git-check
+
+  # ── Local policy hooks ─────────────────────────────────────────────────────
+  - repo: local
+    hooks:
+
+      # Executable .py files must have a shebang whose interpreter is
+      # python3, uvx, or uv  (e.g. #!/usr/bin/env python3)
+      - id: py-shebang
+        name: Executable .py scripts must reference python3, uvx, or uv in shebang
+        entry: |-
+          bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; head -1 "$f" | grep -qE "^#!.*(python3|uvx|uv)\b" || { echo "FAIL: $f - shebang must reference python3, uvx, or uv"; rc=1; }; done; exit $rc' --
+        language: system
+        files: '\.py$'
+        pass_filenames: true
+
+      # Marimo notebooks must pass  uvx marimo check
+      # Detection heuristic: file contains both  import marimo  and  @app.cell
+      - id: py-marimo-check
+        name: Marimo notebooks must pass uvx marimo check
+        entry: |-
+          bash -c 'rc=0; for f; do grep -q "import marimo" "$f" && grep -q "@app\.cell" "$f" || continue; uvx marimo check "$f" || { echo "FAIL: uvx marimo check failed for $f"; rc=1; }; done; exit $rc' --
+        language: system
+        files: '\.py$'
+        pass_filenames: true
+
+      # Executable .py scripts must exit 0 on --help, --version and -V.
+      # Files with PEP 723 inline deps (# /// script) or marimo notebooks are
+      # invoked via  uv run --script  so dependencies are resolved before running.
+      # All other executable .py files are invoked directly (shebang is honoured).
+      - id: py-help-version
+        name: Executable .py scripts must exit 0 on --help, --version and -V
+        entry: |-
+          bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; if grep -qE "^# /// script" "$f" || { grep -q "import marimo" "$f" && grep -q "@app\.cell" "$f"; }; then uv run --script "$f" --help >/dev/null 2>&1 || { echo "FAIL: uv run --script $f --help failed"; rc=1; }; uv run --script "$f" --version >/dev/null 2>&1 || { echo "FAIL: uv run --script $f --version failed"; rc=1; }; uv run --script "$f" -V >/dev/null 2>&1 || { echo "FAIL: uv run --script $f -V failed"; rc=1; }; else "$f" --help >/dev/null 2>&1 || { echo "FAIL: $f --help failed"; rc=1; }; "$f" --version >/dev/null 2>&1 || { echo "FAIL: $f --version failed"; rc=1; }; "$f" -V >/dev/null 2>&1 || { echo "FAIL: $f -V failed"; rc=1; }; fi; done; exit $rc' --
+        language: system
+        files: '\.py$'
+        pass_filenames: true
+
+      # All .py files must contain the words version, author, email
+      # (case-insensitive grep; no specific format is enforced)
+      - id: py-metadata
+        name: Python files must contain version, author and email metadata
+        entry: |-
+          bash -c 'rc=0; for f; do for kw in version author email; do grep -qi "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done; done; exit $rc' --
+        language: system
+        files: '\.py$'
+        pass_filenames: true

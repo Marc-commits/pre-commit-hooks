@@ -1,0 +1,73 @@
+# Docker.pre-commit-hooks.yaml
+# Pre-commit hooks for Dockerfiles (Dockerfile, Dockerfile.*, *.dockerfile).
+#
+# Checks: hadolint lint, docker build --check dry-run, whitespace hygiene,
+#         binary guard, private-key detection, git hygiene, metadata presence
+#
+# Prerequisites:
+#   System: hadolint (https://github.com/hadolint/hadolint#install),
+#           docker (Engine 24+ / BuildKit for --check flag)
+#
+# Usage:
+#   pre-commit run --all-files --config Docker.pre-commit-hooks.yaml
+#   pre-commit autoupdate --config Docker.pre-commit-hooks.yaml
+
+repos:
+
+  # ── Common file-quality gates ──────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: check-added-large-files
+      - id: detect-private-key
+
+  # ── Pre-commit manifest validator ──────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit
+    rev: v4.6.0
+    hooks:
+      - id: validate_manifest
+
+  # ── Git hygiene ────────────────────────────────────────────────────────────
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 3.0.0
+    hooks:
+      - id: forbid-binary
+      - id: git-check
+
+  # ── Dockerfile linting (system hadolint, no Docker daemon needed) ──────────
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint
+        # hadolint uses types: [dockerfile] by default; the files: pattern is
+        # an explicit guard for Dockerfile.* and *.dockerfile variants.
+        files: '(^|/)Dockerfile(\.[^/]+)?$|\.dockerfile$'
+
+  # ── Local policy hooks ─────────────────────────────────────────────────────
+  - repo: local
+    hooks:
+
+      # Dry-run build check — validates BuildKit instructions without building.
+      # Requires Docker Engine 24+ (BuildKit default). Uses the Dockerfile's
+      # own directory as the build context.
+      - id: docker-build-check
+        name: docker build --check (dry-run lint)
+        entry: |-
+          bash -c 'rc=0; for f; do docker build --check --file "$f" "$(dirname "$f")" 2>&1 || { echo "FAIL: docker build --check failed for $f"; rc=1; }; done; exit $rc' --
+        language: system
+        files: '(^|/)Dockerfile(\.[^/]+)?$|\.dockerfile$'
+        pass_filenames: true
+
+      # Dockerfiles must contain the words version, author, email
+      # (case-insensitive grep; no specific format is enforced)
+      - id: docker-metadata
+        name: Dockerfiles must contain version, author and email metadata
+        entry: |-
+          bash -c 'rc=0; for f; do for kw in version author email; do grep -qi "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done; done; exit $rc' --
+        language: system
+        files: '(^|/)Dockerfile(\.[^/]+)?$|\.dockerfile$'
+        pass_filenames: true

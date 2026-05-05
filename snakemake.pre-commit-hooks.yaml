@@ -1,0 +1,115 @@
+# snakemake.pre-commit-hooks.yaml
+# Pre-commit hooks for Snakemake workflows (Snakefile, *.smk).
+#
+# Checks: snakefmt format (PEP 8-style for Snakefiles),
+#         snakemake --lint (built-in rule/workflow linter),
+#         shellcheck + shfmt for workflow/scripts/*.sh,
+#         lintr + styler + parsable-R for workflow/scripts/*.{R,r},
+#         check-ast for workflow/scripts/*.py,
+#         conda env dry-run for workflow/envs/*.{yaml,yml},
+#         whitespace hygiene, binary guard, private-key detection, git hygiene
+# See: https://snakemake.readthedocs.io/en/stable/snakefiles/best_practices.html
+#
+# Prerequisites:
+#   System: snakemake (>=8), snakefmt, shellcheck, shfmt, conda (with libmamba solver),
+#           pre-commit
+#           pip install snakemake snakefmt
+#   R packages: precommit, styler, lintr
+#               Rscript -e 'install.packages(c("precommit","styler","lintr"))'
+#
+# Usage:
+#   pre-commit run --all-files --config snakemake.pre-commit-hooks.yaml
+#   pre-commit autoupdate --config snakemake.pre-commit-hooks.yaml
+
+repos:
+
+  # ── Common file-quality gates ──────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: check-added-large-files
+      - id: detect-private-key
+      # Python AST check scoped to workflow scripts
+      - id: check-ast
+        files: 'workflow/scripts/.*\.py$'
+
+  # ── Pre-commit manifest validator ──────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit
+    rev: v4.6.0
+    hooks:
+      - id: validate_manifest
+
+  # ── Git hygiene + shell linting for workflow scripts ──────────────────────
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 3.0.0
+    hooks:
+      - id: forbid-binary
+      - id: git-check
+      # Shell linting scoped to non-executable workflow scripts
+      - id: shellcheck
+        files: 'workflow/scripts/.*\.sh$'
+      - id: shfmt
+        files: 'workflow/scripts/.*\.sh$'
+
+  # ── R linting for workflow scripts ────────────────────────────────────────
+  - repo: https://github.com/lorenzwalthert/precommit
+    rev: v0.4.3
+    hooks:
+      - id: style-files
+        args: [--style_pkg=styler, --style_fun=tidyverse_style]
+        files: 'workflow/scripts/.*\.(R|r)$'
+      - id: parsable-R
+        files: 'workflow/scripts/.*\.(R|r)$'
+      - id: lintr
+        files: 'workflow/scripts/.*\.(R|r)$'
+      - id: no-browser-statement
+        files: 'workflow/scripts/.*\.(R|r)$'
+      - id: no-debug-statement
+        files: 'workflow/scripts/.*\.(R|r)$'
+      - id: no-print-statement
+        files: 'workflow/scripts/.*\.(R|r)$'
+
+  # ── Snakemake format ───────────────────────────────────────────────────────
+  # snakefmt enforces PEP 8-style formatting for Snakefiles and .smk modules.
+  - repo: https://github.com/snakemake/snakefmt
+    rev: v0.10.2
+    hooks:
+      - id: snakefmt
+
+  # ── Local policy hooks ─────────────────────────────────────────────────────
+  - repo: local
+    hooks:
+
+      # snakemake --lint runs the built-in workflow linter, checking rule
+      # structure, wildcard usage, and best-practice patterns.
+      - id: snakemake-lint
+        name: snakemake --lint
+        entry: |-
+          bash -c 'rc=0; for f; do snakemake --lint --snakefile "$f" 2>&1 || { echo "FAIL: snakemake --lint failed for $f"; rc=1; }; done; exit $rc' --
+        language: system
+        files: '(^|/)Snakefile$|\.smk$'
+        pass_filenames: true
+
+      # Workflow shell scripts must use strict mode (non-executable scripts
+      # are not covered by the sh-specific shebang/usage/version hooks)
+      - id: workflow-sh-strict-mode
+        name: Workflow shell scripts must contain set -euo pipefail
+        entry: |-
+          bash -c 'rc=0; for f; do grep -qF "set -euo pipefail" "$f" || { echo "FAIL: $f - missing set -euo pipefail"; rc=1; }; done; exit $rc' --
+        language: system
+        files: 'workflow/scripts/.*\.sh$'
+        pass_filenames: true
+
+      # Conda environment files must be resolvable (dry-run, no env created)
+      - id: conda-env-validate
+        name: Conda environment files must be resolvable (libmamba dry-run)
+        entry: |-
+          bash -c 'rc=0; for f; do conda env create --solver libmamba -d -f "$f" 2>&1 || { echo "FAIL: conda env create --dry-run failed for $f"; rc=1; }; done; exit $rc' --
+        language: system
+        files: 'workflow/envs/.*\.ya?ml$'
+        pass_filenames: true
