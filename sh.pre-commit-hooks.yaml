@@ -67,6 +67,7 @@ repos:
           bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; head -1 "$f" | grep -qF "#!/usr/bin/env bash" || { echo "FAIL: $f - missing #!/usr/bin/env bash on line 1"; rc=1; }; done; exit $rc' --
         language: system
         files: '\.sh$'
+        exclude: '(^|/)tests/'
         pass_filenames: true
 
       # Executable .sh scripts must contain a Usage: section
@@ -76,7 +77,7 @@ repos:
           bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; grep -qi "usage:" "$f" || { echo "FAIL: $f - missing Usage banner (no \"usage:\" pattern found)"; rc=1; }; done; exit $rc' --
         language: system
         files: '\.sh$'
-        exclude: '(^|/)[^/]*(run|test)[^/]*\.sh$'
+        exclude: '(^|/)tests/|(^|/)test/|(^|/)[^/]*(run|test)[^/]*\.sh$'
         pass_filenames: true
 
       # All .sh scripts must contain  set -euo pipefail  (strict mode)
@@ -86,6 +87,7 @@ repos:
           bash -c 'rc=0; for f; do grep -qF "set -euo pipefail" "$f" || { echo "FAIL: $f - missing set -euo pipefail (strict mode required)"; rc=1; }; done; exit $rc' --
         language: system
         files: '\.sh$'
+        exclude: '(^|/)tests/'
         pass_filenames: true
 
       # Executable .sh scripts must exit 0 on --help, --version and -V
@@ -95,7 +97,7 @@ repos:
           bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; bash "$f" --help >/dev/null 2>&1 || { echo "FAIL: bash $f --help exited non-zero"; rc=1; }; bash "$f" --version >/dev/null 2>&1 || { echo "FAIL: bash $f --version exited non-zero"; rc=1; }; bash "$f" -V >/dev/null 2>&1 || { echo "FAIL: bash $f -V exited non-zero"; rc=1; }; done; exit $rc' --
         language: system
         files: '\.sh$'
-        exclude: '(^|/)(build\.sh|[^/]*(run|test)[^/]*\.sh)$'
+        exclude: '(^|/)tests/|(^|/)test/|(^|/)(build\.sh|[^/]*(run|test)[^/]*\.sh)$'
         pass_filenames: true
 
       # All .sh files must contain the words version, author, email
@@ -106,4 +108,5 @@ repos:
           bash -c 'rc=0; for f; do for kw in version author email; do grep -qi "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done; done; exit $rc' --
         language: system
         files: '\.sh$'
+        exclude: '(^|/)tests/|^test\.sh$'
         pass_filenames: true

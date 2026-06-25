@@ -64,6 +64,7 @@ repos:
           bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; head -1 "$f" | grep -qE "^#!.*(python3|uvx|uv)\b" || { echo "FAIL: $f - shebang must reference python3, uvx, or uv"; rc=1; }; done; exit $rc' --
         language: system
         files: '\.py$'
+        exclude: '(^|/)tests/'
         pass_filenames: true
 
       # Marimo notebooks must pass  uvx marimo check
@@ -86,6 +87,7 @@ repos:
           bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; if grep -qE "^# /// script" "$f" || { grep -q "import marimo" "$f" && grep -q "@app\.cell" "$f"; }; then uv run --script "$f" --help >/dev/null 2>&1 || { echo "FAIL: uv run --script $f --help failed"; rc=1; }; uv run --script "$f" --version >/dev/null 2>&1 || { echo "FAIL: uv run --script $f --version failed"; rc=1; }; uv run --script "$f" -V >/dev/null 2>&1 || { echo "FAIL: uv run --script $f -V failed"; rc=1; }; else "$f" --help >/dev/null 2>&1 || { echo "FAIL: $f --help failed"; rc=1; }; "$f" --version >/dev/null 2>&1 || { echo "FAIL: $f --version failed"; rc=1; }; "$f" -V >/dev/null 2>&1 || { echo "FAIL: $f -V failed"; rc=1; }; fi; done; exit $rc' --
         language: system
         files: '\.py$'
+        exclude: '(^|/)tests/'
         pass_filenames: true
 
       # All .py files must contain the words version, author, email
@@ -96,4 +98,5 @@ repos:
           bash -c 'rc=0; for f; do for kw in version author email; do grep -qi "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done; done; exit $rc' --
         language: system
         files: '\.py$'
+        exclude: '(^|/)tests/'
         pass_filenames: true

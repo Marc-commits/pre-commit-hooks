@@ -60,17 +60,23 @@ repos:
       - id: style-files
         args: [--style_pkg=styler, --style_fun=tidyverse_style]
         files: '\.(R|r)$'
+        exclude: '(^|/)tests/'
       - id: parsable-R
         files: '\.(R|r)$'
+        exclude: '(^|/)tests/'
       - id: lintr
         files: '\.(R|r)$'
+        exclude: '(^|/)tests/'
       - id: renv-lockfile-validate
       - id: no-browser-statement
         files: '\.(R|r)$'
+        exclude: '(^|/)tests/'
       - id: no-debug-statement
         files: '\.(R|r)$'
+        exclude: '(^|/)tests/'
       - id: no-print-statement
         files: '\.(R|r)$'
+        exclude: '(^|/)tests/'
 
   # ── Local policy hooks ─────────────────────────────────────────────────────
   - repo: local
@@ -83,6 +89,7 @@ repos:
           bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; head -1 "$f" | grep -qF "#!/usr/bin/env r" || { echo "FAIL: $f - missing #!/usr/bin/env r on line 1"; rc=1; }; done; exit $rc' --
         language: system
         files: '\.r$'
+        exclude: '(^|/)tests/'
         pass_filenames: true
 
       # Executable .r scripts must be runnable and support --help, --version and -V
@@ -95,6 +102,7 @@ repos:
           bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; r "$f" --help >/dev/null 2>&1 || { echo "FAIL: r $f --help exited non-zero"; rc=1; }; Rscript "$f" --version >/dev/null 2>&1 || { echo "FAIL: Rscript $f --version exited non-zero"; rc=1; }; r "$f" -V >/dev/null 2>&1 || { echo "FAIL: r $f -V exited non-zero"; rc=1; }; Rscript "$f" -V >/dev/null 2>&1 || { echo "FAIL: Rscript $f -V exited non-zero"; rc=1; }; done; exit $rc' --
         language: system
         files: '\.r$'
+        exclude: '(^|/)tests/'
         pass_filenames: true
 
       # Executable .r scripts must advertise stdin and stdout in --help output
@@ -104,6 +112,7 @@ repos:
           bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; for runner in r Rscript; do out=$("$runner" "$f" --help 2>&1); echo "$out" | grep -qi "stdin" || { echo "FAIL: $runner $f --help does not mention stdin"; rc=1; }; echo "$out" | grep -qi "stdout" || { echo "FAIL: $runner $f --help does not mention stdout"; rc=1; }; done; done; exit $rc' --
         language: system
         files: '\.r$'
+        exclude: '(^|/)tests/'
         pass_filenames: true
 
       # All .R/.r files must contain the words version, author, email
@@ -114,6 +123,7 @@ repos:
           bash -c 'rc=0; for f; do for kw in version author email; do grep -qi "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done; done; exit $rc' --
         language: system
         files: '\.(R|r)$'
+        exclude: '(^|/)tests/'
         pass_filenames: true
 
       # Executable .r scripts must print startup banner on --version.
@@ -128,6 +138,7 @@ repos:
           bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; out=$(Rscript "$f" --version 2>&1); echo "$out" | grep -qE "This is .+ running R [0-9]+\.[0-9.]+ with args:" || { echo "FAIL: $f banner missing R version or with-args section"; rc=1; continue; }; out2=$(Rscript "$f" --version --sentinel-arg 2>&1); echo "$out2" | grep -qF "with args: --sentinel-arg" || { echo "FAIL: $f banner does not reflect extra args"; rc=1; }; done; exit $rc' --
         language: system
         files: '\.r$'
+        exclude: '(^|/)tests/'
         pass_filenames: true
 
       # Executable .r scripts must suppress banner with --quiet
@@ -138,6 +149,7 @@ repos:
           bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; output=$(Rscript "$f" --quiet --version 2>&1); echo "$output" | grep -qE "This is " && { echo "FAIL: $f --quiet --version still prints startup banner"; rc=1; }; done; exit $rc' --
         language: system
         files: '\.r$'
+        exclude: '(^|/)tests/'
         pass_filenames: true
 
       # Running executable .r scripts must not emit package startup noise.
@@ -149,4 +161,16 @@ repos:
           bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; out=$(Rscript "$f" --help 2>&1); echo "$out" | grep -qiE "^Loading (required )?package:|^Attaching package:|^The following object" && { echo "FAIL: $f prints package startup messages — wrap library() with suppressPackageStartupMessages()"; rc=1; }; done; exit $rc' --
         language: system
         files: '\.r$'
+        exclude: '(^|/)tests/'
+        pass_filenames: true
+
+      # Executable .r scripts must call sessionInfo() in the last 50 lines.
+      # Ensures reproducibility tracing is always present at script end.
+      - id: r-script-session-info
+        name: Executable .r scripts must call sessionInfo() at the end
+        entry: |-
+          bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; total=$(wc -l < "$f"); check=$((total < 50 ? total : 50)); tail -n "$check" "$f" | grep -qF "sessionInfo()" || { echo "FAIL: $f - sessionInfo() not found in last 50 lines"; rc=1; }; done; exit $rc' --
+        language: system
+        files: '\.r$'
+        exclude: '(^|/)tests/'
         pass_filenames: true

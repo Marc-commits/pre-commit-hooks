@@ -113,3 +113,74 @@ repos:
         language: system
         files: 'workflow/envs/.*\.ya?ml$'
         pass_filenames: true
+
+      # Regenerate workflow/rulegraph.svg whenever Snakemake rules change.
+      # Requires graphviz (dot) on PATH. The updated SVG must be staged manually.
+      - id: snakemake-rulegraph
+        name: Snakemake rulegraph visualization
+        entry: |-
+          bash -c 'snakemake --rulegraph --forceall 2>/dev/null | dot -Tsvg > workflow/rulegraph.svg'
+        language: system
+        files: '(^|/)Snakefile$|\.smk$'
+        pass_filenames: false
+
+      # snakemake --containerize generates a Dockerfile with all conda envs embedded.
+      # Stage the updated Dockerfile manually.
+      - id: snakemake-containerize
+        name: Snakemake Dockerfile generation (--containerize)
+        entry: |-
+          bash -c 'snakemake --containerize --forceall 2>/dev/null > Dockerfile'
+        language: system
+        files: '(^|/)Snakefile$|\.smk$|workflow/envs/.*\.ya?ml$'
+        pass_filenames: false
+
+  # ── snakedeploy maintenance hooks (commented out — uncomment after testing) ───
+  #
+  # These are formatter-style hooks: snakedeploy mutates files in-place, then
+  # git diff --exit-code fails the hook if anything changed, forcing the author
+  # to review and re-stage. Run manually first to confirm behavior on your repo.
+  #
+  # Prerequisites: pip install snakedeploy
+  #
+  # - repo: local
+  #   hooks:
+
+      # Hook A: update-snakemake-wrappers
+      # Pins all wrapper: directives in Snakefiles to their current latest release.
+      # Fails if any version strings changed — author must review the diff and
+      # re-stage before committing.
+      #
+      # - id: snakedeploy-update-wrappers
+      #   name: Snakemake wrappers must be at latest versions (snakedeploy)
+      #   entry: |-
+      #     bash -c 'rc=0; for f; do snakedeploy update-snakemake-wrappers "$f" 2>&1 || { echo "FAIL: snakedeploy update-snakemake-wrappers failed for $f"; rc=1; continue; }; git diff --exit-code -- "$f" >/dev/null 2>&1 || { echo "FAIL: $f wrapper versions were updated — review and re-stage"; rc=1; }; done; exit $rc' --
+      #   language: system
+      #   files: '(^|/)Snakefile$|\.smk$'
+      #   pass_filenames: true
+
+      # Hook B: update-conda-envs
+      # Sets all packages in workflow/envs/*.yaml to their latest feasible
+      # versions. Fails if any version pins changed — author must review.
+      #
+      # - id: snakedeploy-update-conda-envs
+      #   name: Conda env packages must be at latest feasible versions (snakedeploy)
+      #   entry: |-
+      #     bash -c 'rc=0; for f; do snakedeploy update-conda-envs "$f" 2>&1 || { echo "FAIL: snakedeploy update-conda-envs failed for $f"; rc=1; continue; }; git diff --exit-code -- "$f" >/dev/null 2>&1 || { echo "FAIL: $f conda versions were updated — review and re-stage"; rc=1; }; done; exit $rc' --
+      #   language: system
+      #   files: 'workflow/envs/.*\.ya?ml$'
+      #   pass_filenames: true
+
+      # Hook C: pin-conda-envs
+      # Locks conda packages to exact compatible URLs (creates/updates lockfiles).
+      # Behavior: may write a companion lockfile alongside the .yaml rather than
+      # modifying it in-place — verify the output path before enabling.
+      # If it modifies the .yaml in-place, the git diff check below catches it.
+      # If it writes a separate lockfile, replace git diff with: git status --short
+      #
+      # - id: snakedeploy-pin-conda-envs
+      #   name: Conda environments must have up-to-date pin lockfiles (snakedeploy)
+      #   entry: |-
+      #     bash -c 'rc=0; for f; do snakedeploy pin-conda-envs "$f" 2>&1 || { echo "FAIL: snakedeploy pin-conda-envs failed for $f"; rc=1; continue; }; git diff --exit-code -- "$f" >/dev/null 2>&1 || { echo "FAIL: $f pin lockfile was updated — review and re-stage"; rc=1; }; done; exit $rc' --
+      #   language: system
+      #   files: 'workflow/envs/.*\.ya?ml$'
+      #   pass_filenames: true
