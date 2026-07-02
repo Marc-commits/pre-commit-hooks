@@ -64,3 +64,11 @@ repos:
         language: script
         files: '(^|/)README\.md$'
         pass_filenames: true
+
+      # Check that all http(s) URLs in README.md are reachable
+      - id: readme-url-check
+        name: README.md URLs should be reachable
+        entry: scripts/check-readme-urls.sh
+        language: script
+        files: '(^|/)README\.md$'
+        pass_filenames: true
