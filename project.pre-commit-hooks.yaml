@@ -1,3 +1,4 @@
+---
 # project.pre-commit-hooks.yaml
 # Generic version-consistency hook.
 #
@@ -55,3 +56,11 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      # Warn when README.md contains local filesystem paths or bare GitHub repo shorthands
+      - id: readme-no-local-paths
+        name: README.md should not contain local paths or bare GitHub shorthands
+        entry: scripts/check-readme-paths.sh
+        language: script
+        files: '(^|/)README\.md$'
+        pass_filenames: true
