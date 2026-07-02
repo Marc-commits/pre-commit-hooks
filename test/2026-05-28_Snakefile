@@ -1,0 +1,137 @@
+# Cyano bulk RNA-seq (paired-end) Snakemake workflow
+# Organism: Anabaena sp. PCC 7120
+# Steps: lane merge → FastQ-Screen → cutadapt → bowtie2 → samtools → bamCoverage
+#        → bedgraph2grp → htseq-count (genes + transcripts) → MultiQC
+#        → DESeq2 + RGenEDA → functional enrichment (GO, KEGG, GSEA)
+
+
+from snakemake.utils import validate
+
+
+configfile: "config/config.yaml"
+
+
+validate(config, schema="workflow/schemas/config.schema.yaml")
+
+
+SAMPLES = list(config["samples"].keys())
+GROUPS = list(config["groups"].keys())
+NORM_DIRS = list(config["params"]["bamcoverage"]["normalizations"].values())
+
+
+wildcard_constraints:
+    sample="|".join(SAMPLES),
+    group="|".join(GROUPS),
+    norm_dir="|".join(NORM_DIRS),
+    strand="fwd|rev",
+
+
+localrules:
+    merge_lanes,
+    extract_bowtie2_log,
+    htseq_strip_header_genes,
+    htseq_strip_header_transcripts,
+
+
+include: "workflow/rules/common.smk"
+include: "workflow/rules/merging.smk"
+include: "workflow/rules/qc.smk"
+include: "workflow/rules/trimming.smk"
+include: "workflow/rules/mapping.smk"
+include: "workflow/rules/filtering.smk"
+include: "workflow/rules/coverage.smk"
+include: "workflow/rules/grp.smk"
+include: "workflow/rules/counting.smk"
+include: "workflow/rules/multiqc.smk"
+include: "workflow/rules/deseq2.smk"
+include: "workflow/rules/enrichment.smk"
+
+
+rule all:
+    input:
+        # Coverage plot (not captured by MultiQC)
+        "05_coverage_plots/filtered_coverage.png",
+        # GRP files — raw bedgraphs → Artemis chromosome track
+        expand(
+            "06_grp/{sample}_filtered_{strand}_chr.grp",
+            sample=SAMPLES,
+            strand=["fwd", "rev"],
+        ),
+        # GRP files — normalized bedgraphs
+        expand(
+            "06_grp/{norm_dir}/{sample}_filtered_{strand}_chr.grp",
+            norm_dir=NORM_DIRS,
+            sample=SAMPLES,
+            strand=["fwd", "rev"],
+        ),
+        # Aggregated counts (not in MultiQC; individual counts are)
+        expand(
+            "07_gene_counts_unnormalized/aggregated_per_experiment/{group}_filt_counts_aggr.tsv",
+            group=GROUPS,
+        ),
+        expand(
+            "08_transcript_counts_unnormalized/aggregated_per_experiment/{group}_filt_counts_aggr.tsv",
+            group=GROUPS,
+        ),
+        # MultiQC — triggers: fastq_screen, trimming, mapping, filtering,
+        #            individual gene/transcript counts
+        "multiqc_report.html",
+        # DESeq2 + RGenEDA (requires Docker)
+        "09_deseq2/gene_results/deseq2_object.rds",
+        "09_deseq2/transcript_results/deseq2_object.rds",
+        "10_rgeneda/gene_results/rgeneda.log",
+        "10_rgeneda/transcript_results/rgeneda.log",
+        # Functional enrichment (requires internet + conda/mamba)
+        expand(
+            "11_enrichment/{level}_results/ClusteredGOEnrichment_{direction}.tsv",
+            level=["gene", "transcript"],
+            direction=["up", "down"],
+        ),
+        expand(
+            "11_enrichment/{level}_results/KEGGEnrichment_{direction}.tsv",
+            level=["gene", "transcript"],
+            direction=["up", "down"],
+        ),
+        expand(
+            "11_enrichment/{level}_results/GSEAGO.tsv",
+            level=["gene", "transcript"],
+        ),
+
+
+# ── DESeq2 + RGenEDA partial target ──────────────────────────────────────────
+# Included in rule all. Can also be run standalone (requires Docker):
+#   snakemake deseq2_analysis --cores 1
+
+
+rule deseq2_analysis:
+    default_target: False
+    input:
+        "09_deseq2/gene_results/deseq2_object.rds",
+        "09_deseq2/transcript_results/deseq2_object.rds",
+        "10_rgeneda/gene_results/rgeneda.log",
+        "10_rgeneda/transcript_results/rgeneda.log",
+
+
+# ── Functional enrichment partial target ─────────────────────────────────────
+# Included in rule all. Can also be run standalone (requires deseq2_object.rds,
+# internet access, and conda/mamba):
+#   snakemake enrichment_analysis --use-conda --conda-frontend mamba --cores 4
+
+
+rule enrichment_analysis:
+    default_target: False
+    input:
+        expand(
+            "11_enrichment/{level}_results/ClusteredGOEnrichment_{direction}.tsv",
+            level=["gene", "transcript"],
+            direction=["up", "down"],
+        ),
+        expand(
+            "11_enrichment/{level}_results/KEGGEnrichment_{direction}.tsv",
+            level=["gene", "transcript"],
+            direction=["up", "down"],
+        ),
+        expand(
+            "11_enrichment/{level}_results/GSEAGO.tsv",
+            level=["gene", "transcript"],
+        ),
