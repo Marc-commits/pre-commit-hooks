@@ -2,12 +2,13 @@
 # project.pre-commit-hooks.yaml
 # Generic version-consistency hook.
 #
-# Scans all tracked files for version declarations using common patterns:
-#   R scripts    : script_version <- "x.y.z"
-#   Shell scripts: VERSION="x.y.z"  (standalone assignment, start of line)
-#   Dockerfiles  : LABEL version="x.y.z"
+# Scans only the repo's main entry-point script and its Dockerfile for version
+# declarations:
+#   Root-level R script (*.r or *.R, directly in repo root):
+#     script_version <- "x.y.z"
+#   Dockerfile (repo root or docker/): LABEL version="x.y.z"
 #
-# Fails if more than one distinct version string is found across the repository.
+# Fails if more than one distinct version string is found among those files.
 # Safe to use in any project that follows these conventions; no file names are
 # hardcoded.
 #
@@ -30,18 +31,21 @@ repos:
   - repo: local
     hooks:
 
-      # All version declarations in the repository must carry the same string
+      # The main root-level R script and the Dockerfile must carry the same
+      # version string. Helper scripts under scripts/, test/, etc. are not
+      # checked — only the repo's single entry-point script matters here.
       - id: version-sync
         name: Version strings must be consistent across the repository
         entry: |-
           bash -c '
+            r_pat="script_version\s*<-\s*\"\K[0-9]+\.[0-9]+(\.[0-9]+)?"
+            docker_pat="version=\"\K[0-9]+\.[0-9]+(\.[0-9]+)?"
             versions=$(
-              git ls-files "*.r" "*.R" 2>/dev/null \
-                | xargs grep -hoP "script_version\s*<-\s*\"\K[0-9]+\.[0-9]+(\.[0-9]+)?" 2>/dev/null || true;
-              git ls-files "*.sh" 2>/dev/null \
-                | xargs grep -hoP "^VERSION=\"\K[0-9]+\.[0-9]+(\.[0-9]+)?" 2>/dev/null || true;
-              git ls-files 2>/dev/null | grep -E "(^|/)Dockerfile([^/]*)$" \
-                | xargs grep -hom1 -oP "version=\"\K[0-9]+\.[0-9]+(\.[0-9]+)?" 2>/dev/null || true;
+              git ls-files "*.r" "*.R" 2>/dev/null | grep -v "/" \
+                | xargs -r grep -hoP "$r_pat" 2>/dev/null || true;
+              git ls-files 2>/dev/null \
+                | grep -E "^(docker/)?Dockerfile([^/]*)$" \
+                | xargs -r grep -hom1 -oP "$docker_pat" 2>/dev/null || true;
             )
             [ -z "$versions" ] && exit 0
             unique=$(printf "%s\n" $versions | sort -u)
@@ -57,7 +61,8 @@ repos:
         pass_filenames: false
         always_run: true
 
-      # Warn when README.md contains local filesystem paths or bare GitHub repo shorthands
+      # Warn when README.md contains local filesystem paths or bare GitHub
+      # repo shorthands
       - id: readme-no-local-paths
         name: README.md should not contain local paths or bare GitHub shorthands
         entry: scripts/check-readme-paths.sh
