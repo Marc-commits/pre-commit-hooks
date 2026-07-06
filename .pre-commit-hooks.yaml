@@ -21,12 +21,16 @@
     bash -c '
       r_pat="script_version\s*<-\s*\"\K[0-9]+\.[0-9]+(\.[0-9]+)?"
       docker_pat="version=\"\K[0-9]+\.[0-9]+(\.[0-9]+)?"
+      sh_pat="^VERSION=\"\K[0-9]+\.[0-9]+(\.[0-9]+)?"
       versions=$(
         git ls-files "*.r" "*.R" 2>/dev/null | grep -v "/" \
           | xargs -r grep -hoP "$r_pat" 2>/dev/null || true;
         git ls-files 2>/dev/null \
           | grep -E "^(docker/)?Dockerfile([^/]*)$" \
           | xargs -r grep -hom1 -oP "$docker_pat" 2>/dev/null || true;
+        git ls-files 2>/dev/null \
+          | grep -E "^(docker/)?build\.sh$" \
+          | xargs -r grep -hoP "$sh_pat" 2>/dev/null || true;
       )
       [ -z "$versions" ] && exit 0
       unique=$(printf "%s\n" $versions | sort -u)
