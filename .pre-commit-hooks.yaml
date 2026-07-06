@@ -9,7 +9,8 @@
 #       - id: <one of the ids below>
 #
 # Grouped by origin (previously spread across project/R/py/sh/Docker/snakemake
-# .pre-commit-hooks.yaml full-config files); those files remain as documentation/
+# .pre-commit-hooks.yaml full-config files); those files remain as
+# documentation/
 # reference templates for `pre-commit run --config <file>` but this is the file
 # pre-commit's remote-hook resolution reads.
 
@@ -63,9 +64,12 @@
 # ── from R.pre-commit-hooks.yaml ────────────────────────────────────────────
 
 - id: r-script-shebang
-  name: Executable .r scripts must have #!/usr/bin/env r shebang
+  name: "Executable .r scripts must have #!/usr/bin/env r shebang"
   entry: |-
-    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; head -1 "$f" | grep -qF "#!/usr/bin/env r" || { echo "FAIL: $f - missing #!/usr/bin/env r on line 1"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; head -1 "$f" | grep  \
+      -qF "#!/usr/bin/env r" || { echo  \
+      "FAIL: $f - missing #!/usr/bin/env r on line 1"; rc=1; }; done; exit $rc \
+      ' --
   language: system
   files: '\.r$'
   exclude: '(^|/)tests/'
@@ -74,7 +78,13 @@
 - id: r-script-runnable
   name: Executable .r scripts must exit 0 on --help, --version and -V
   entry: |-
-    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; r "$f" --help >/dev/null 2>&1 || { echo "FAIL: r $f --help exited non-zero"; rc=1; }; Rscript "$f" --version >/dev/null 2>&1 || { echo "FAIL: Rscript $f --version exited non-zero"; rc=1; }; r "$f" -V >/dev/null 2>&1 || { echo "FAIL: r $f -V exited non-zero"; rc=1; }; Rscript "$f" -V >/dev/null 2>&1 || { echo "FAIL: Rscript $f -V exited non-zero"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; r "$f" --help  \
+      >/dev/null 2>&1 || { echo "FAIL: r $f --help exited non-zero"; rc=1; };  \
+      Rscript "$f" --version >/dev/null 2>&1 || { echo  \
+      "FAIL: Rscript $f --version exited non-zero"; rc=1; }; r "$f" -V  \
+      >/dev/null 2>&1 || { echo "FAIL: r $f -V exited non-zero"; rc=1; };  \
+      Rscript "$f" -V >/dev/null 2>&1 || { echo  \
+      "FAIL: Rscript $f -V exited non-zero"; rc=1; }; done; exit $rc' --
   language: system
   files: '\.r$'
   exclude: '(^|/)tests/'
@@ -83,7 +93,12 @@
 - id: r-script-stdin-stdout
   name: Executable .r scripts must advertise stdin and stdout in --help
   entry: |-
-    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; for runner in r Rscript; do out=$("$runner" "$f" --help 2>&1); echo "$out" | grep -qi "stdin" || { echo "FAIL: $runner $f --help does not mention stdin"; rc=1; }; echo "$out" | grep -qi "stdout" || { echo "FAIL: $runner $f --help does not mention stdout"; rc=1; }; done; done; exit $rc' --
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; for runner in r  \
+      Rscript; do out=$("$runner" "$f" --help 2>&1); echo "$out" | grep -qi  \
+      "stdin" || { echo "FAIL: $runner $f --help does not mention stdin";  \
+      rc=1; }; echo "$out" | grep -qi "stdout" || { echo  \
+      "FAIL: $runner $f --help does not mention stdout"; rc=1; }; done; done;  \
+      exit $rc' --
   language: system
   files: '\.r$'
   exclude: '(^|/)tests/'
@@ -92,7 +107,9 @@
 - id: r-metadata
   name: R files must contain version, author and email metadata
   entry: |-
-    bash -c 'rc=0; for f; do for kw in version author email; do grep -qi "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done; done; exit $rc' --
+    bash -c 'rc=0; for f; do for kw in version author email; do grep -qi  \
+      "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done;  \
+      done; exit $rc' --
   language: system
   files: '\.(R|r)$'
   exclude: '(^|/)tests/'
@@ -101,7 +118,13 @@
 - id: r-script-startup-banner
   name: Executable .r scripts must print startup banner on --version
   entry: |-
-    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; out=$(Rscript "$f" --version 2>&1); echo "$out" | grep -qE "This is .+ running R [0-9]+\.[0-9.]+ with args:" || { echo "FAIL: $f banner missing R version or with-args section"; rc=1; continue; }; out2=$(Rscript "$f" --version --sentinel-arg 2>&1); echo "$out2" | grep -qF "with args: --sentinel-arg" || { echo "FAIL: $f banner does not reflect extra args"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; out=$(Rscript "$f"  \
+      --version 2>&1); echo "$out" | grep -qE  \
+      "This is .+ running R [0-9]+\.[0-9.]+ with args:" || { echo  \
+      "FAIL: $f banner missing R version or with-args section"; rc=1;  \
+      continue; }; out2=$(Rscript "$f" --version --sentinel-arg 2>&1); echo  \
+      "$out2" | grep -qF "with args: --sentinel-arg" || { echo  \
+      "FAIL: $f banner does not reflect extra args"; rc=1; }; done; exit $rc' --
   language: system
   files: '\.r$'
   exclude: '(^|/)tests/'
@@ -110,16 +133,28 @@
 - id: r-script-quiet-banner
   name: Executable .r scripts must suppress banner with --quiet
   entry: |-
-    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; output=$(Rscript "$f" --quiet --version 2>&1); echo "$output" | grep -qE "This is " && { echo "FAIL: $f --quiet --version still prints startup banner"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; output=$(Rscript "$f"  \
+      --quiet --version 2>&1); echo "$output" | grep -qE "This is " && { echo  \
+      "FAIL: $f --quiet --version still prints startup banner"; rc=1; };  \
+      done; exit $rc' --
   language: system
   files: '\.r$'
   exclude: '(^|/)tests/'
   pass_filenames: true
 
 - id: r-script-no-pkg-startup
-  name: Executable .r scripts must not print package startup messages
+  name: "Executable .r scripts must not print package startup messages"
   entry: |-
-    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; out=$(Rscript "$f" --help 2>&1); echo "$out" | grep -qiE "^Loading (required )?package:|^Attaching package:|^The following object" && { echo "FAIL: $f prints package startup messages — wrap library() with suppressPackageStartupMessages()"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; \
+      out=$(Rscript "$f" --help 2>&1); \
+      echo "$out" | grep -qiE \
+        -e "^Loading (required )?package:" \
+        -e "^Attaching package:" \
+        -e "^The following object" && \
+        { msg="FAIL: $f prints package startup messages —"; \
+          msg+=" wrap library() with suppressPackageStartupMessages()"; \
+          echo "$msg"; rc=1; }; \
+    done; exit $rc' --
   language: system
   files: '\.r$'
   exclude: '(^|/)tests/'
@@ -128,7 +163,11 @@
 - id: r-script-session-info
   name: Executable .r scripts must call sessionInfo() at the end
   entry: |-
-    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; total=$(wc -l < "$f"); check=$((total < 50 ? total : 50)); tail -n "$check" "$f" | grep -qF "sessionInfo()" || { echo "FAIL: $f - sessionInfo() not found in last 50 lines"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; total=$(wc -l <  \
+      "$f"); check=$((total < 50 ? total : 50)); tail -n "$check" "$f" | grep  \
+      -qF "sessionInfo()" || { echo  \
+      "FAIL: $f - sessionInfo() not found in last 50 lines"; rc=1; }; done;  \
+      exit $rc' --
   language: system
   files: '\.r$'
   exclude: '(^|/)tests/'
@@ -139,7 +178,10 @@
 - id: py-shebang
   name: Executable .py scripts must reference python3, uvx, or uv in shebang
   entry: |-
-    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; head -1 "$f" | grep -qE "^#!.*(python3|uvx|uv)\b" || { echo "FAIL: $f - shebang must reference python3, uvx, or uv"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; head -1 "$f" | grep  \
+      -qE "^#!.*(python3|uvx|uv)\b" || { echo  \
+      "FAIL: $f - shebang must reference python3, uvx, or uv"; rc=1; }; done;  \
+      exit $rc' --
   language: system
   files: '\.py$'
   exclude: '(^|/)tests/'
@@ -148,7 +190,9 @@
 - id: py-marimo-check
   name: Marimo notebooks must pass uvx marimo check
   entry: |-
-    bash -c 'rc=0; for f; do grep -q "import marimo" "$f" && grep -q "@app\.cell" "$f" || continue; uvx marimo check "$f" || { echo "FAIL: uvx marimo check failed for $f"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do grep -q "import marimo" "$f" && grep -q  \
+      "@app\.cell" "$f" || continue; uvx marimo check "$f" || { echo  \
+      "FAIL: uvx marimo check failed for $f"; rc=1; }; done; exit $rc' --
   language: system
   files: '\.py$'
   pass_filenames: true
@@ -156,7 +200,17 @@
 - id: py-help-version
   name: Executable .py scripts must exit 0 on --help, --version and -V
   entry: |-
-    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; if grep -qE "^# /// script" "$f" || { grep -q "import marimo" "$f" && grep -q "@app\.cell" "$f"; }; then uv run --script "$f" --help >/dev/null 2>&1 || { echo "FAIL: uv run --script $f --help failed"; rc=1; }; uv run --script "$f" --version >/dev/null 2>&1 || { echo "FAIL: uv run --script $f --version failed"; rc=1; }; uv run --script "$f" -V >/dev/null 2>&1 || { echo "FAIL: uv run --script $f -V failed"; rc=1; }; else "$f" --help >/dev/null 2>&1 || { echo "FAIL: $f --help failed"; rc=1; }; "$f" --version >/dev/null 2>&1 || { echo "FAIL: $f --version failed"; rc=1; }; "$f" -V >/dev/null 2>&1 || { echo "FAIL: $f -V failed"; rc=1; }; fi; done; exit $rc' --
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; if grep -qE  \
+      "^# /// script" "$f" || { grep -q "import marimo" "$f" && grep -q  \
+      "@app\.cell" "$f"; }; then uv run --script "$f" --help >/dev/null 2>&1  \
+      || { echo "FAIL: uv run --script $f --help failed"; rc=1; }; uv run  \
+      --script "$f" --version >/dev/null 2>&1 || { echo  \
+      "FAIL: uv run --script $f --version failed"; rc=1; }; uv run --script  \
+      "$f" -V >/dev/null 2>&1 || { echo "FAIL: uv run --script $f -V failed";  \
+      rc=1; }; else "$f" --help >/dev/null 2>&1 || { echo  \
+      "FAIL: $f --help failed"; rc=1; }; "$f" --version >/dev/null 2>&1 || {  \
+      echo "FAIL: $f --version failed"; rc=1; }; "$f" -V >/dev/null 2>&1 || {  \
+      echo "FAIL: $f -V failed"; rc=1; }; fi; done; exit $rc' --
   language: system
   files: '\.py$'
   exclude: '(^|/)tests/'
@@ -165,7 +219,9 @@
 - id: py-metadata
   name: Python files must contain version, author and email metadata
   entry: |-
-    bash -c 'rc=0; for f; do for kw in version author email; do grep -qi "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done; done; exit $rc' --
+    bash -c 'rc=0; for f; do for kw in version author email; do grep -qi  \
+      "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done;  \
+      done; exit $rc' --
   language: system
   files: '\.py$'
   exclude: '(^|/)tests/'
@@ -174,9 +230,12 @@
 # ── from sh.pre-commit-hooks.yaml ───────────────────────────────────────────
 
 - id: sh-bash-shebang
-  name: Executable .sh scripts must have #!/usr/bin/env bash shebang
+  name: "Executable .sh scripts must have #!/usr/bin/env bash shebang"
   entry: |-
-    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; head -1 "$f" | grep -qF "#!/usr/bin/env bash" || { echo "FAIL: $f - missing #!/usr/bin/env bash on line 1"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; head -1 "$f" | grep  \
+      -qF "#!/usr/bin/env bash" || { echo  \
+      "FAIL: $f - missing #!/usr/bin/env bash on line 1"; rc=1; }; done; exit  \
+      $rc' --
   language: system
   files: '\.sh$'
   exclude: '(^|/)tests/'
@@ -185,7 +244,10 @@
 - id: sh-usage-banner
   name: Executable .sh scripts must have a Usage banner
   entry: |-
-    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; grep -qi "usage:" "$f" || { echo "FAIL: $f - missing Usage banner (no \"usage:\" pattern found)"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; grep -qi "usage:"  \
+      "$f" || { echo  \
+      "FAIL: $f - missing Usage banner (no \"usage:\" pattern found)"; rc=1;  \
+      }; done; exit $rc' --
   language: system
   files: '\.sh$'
   exclude: '(^|/)tests/|(^|/)test/|(^|/)[^/]*(run|test)[^/]*\.sh$'
@@ -194,7 +256,9 @@
 - id: sh-strict-mode
   name: Shell scripts must contain set -euo pipefail
   entry: |-
-    bash -c 'rc=0; for f; do grep -qF "set -euo pipefail" "$f" || { echo "FAIL: $f - missing set -euo pipefail (strict mode required)"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do grep -qF "set -euo pipefail" "$f" || { echo  \
+      "FAIL: $f - missing set -euo pipefail (strict mode required)"; rc=1; };  \
+      done; exit $rc' --
   language: system
   files: '\.sh$'
   exclude: '(^|/)tests/'
@@ -203,7 +267,12 @@
 - id: sh-help-version
   name: Executable .sh scripts must exit 0 on --help, --version and -V
   entry: |-
-    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; bash "$f" --help >/dev/null 2>&1 || { echo "FAIL: bash $f --help exited non-zero"; rc=1; }; bash "$f" --version >/dev/null 2>&1 || { echo "FAIL: bash $f --version exited non-zero"; rc=1; }; bash "$f" -V >/dev/null 2>&1 || { echo "FAIL: bash $f -V exited non-zero"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; bash "$f" --help  \
+      >/dev/null 2>&1 || { echo "FAIL: bash $f --help exited non-zero"; rc=1;  \
+      }; bash "$f" --version >/dev/null 2>&1 || { echo  \
+      "FAIL: bash $f --version exited non-zero"; rc=1; }; bash "$f" -V  \
+      >/dev/null 2>&1 || { echo "FAIL: bash $f -V exited non-zero"; rc=1; };  \
+      done; exit $rc' --
   language: system
   files: '\.sh$'
   exclude: '(^|/)tests/|(^|/)test/|(^|/)(build\.sh|[^/]*(run|test)[^/]*\.sh)$'
@@ -212,7 +281,9 @@
 - id: sh-metadata
   name: Shell scripts must contain version, author and email metadata
   entry: |-
-    bash -c 'rc=0; for f; do for kw in version author email; do grep -qi "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done; done; exit $rc' --
+    bash -c 'rc=0; for f; do for kw in version author email; do grep -qi  \
+      "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done;  \
+      done; exit $rc' --
   language: system
   files: '\.sh$'
   exclude: '(^|/)tests/|^test\.sh$'
@@ -223,7 +294,9 @@
 - id: docker-build-check
   name: docker build --check (dry-run lint)
   entry: |-
-    bash -c 'rc=0; for f; do docker build --check --file "$f" "$(dirname "$f")" 2>&1 || { echo "FAIL: docker build --check failed for $f"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do docker build --check --file "$f"  \
+      "$(dirname "$f")" 2>&1 || { echo  \
+      "FAIL: docker build --check failed for $f"; rc=1; }; done; exit $rc' --
   language: system
   files: '(^|/)Dockerfile(\.[^/]+)?$|\.dockerfile$'
   pass_filenames: true
@@ -231,7 +304,9 @@
 - id: docker-metadata
   name: Dockerfiles must contain version, author and email metadata
   entry: |-
-    bash -c 'rc=0; for f; do for kw in version author email; do grep -qi "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done; done; exit $rc' --
+    bash -c 'rc=0; for f; do for kw in version author email; do grep -qi  \
+      "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done;  \
+      done; exit $rc' --
   language: system
   files: '(^|/)Dockerfile(\.[^/]+)?$|\.dockerfile$'
   pass_filenames: true
@@ -241,7 +316,8 @@
 - id: snakemake-lint
   name: snakemake --lint
   entry: |-
-    bash -c 'rc=0; for f; do snakemake --lint --snakefile "$f" 2>&1 || { echo "FAIL: snakemake --lint failed for $f"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do snakemake --lint --snakefile "$f" 2>&1 || { echo  \
+      "FAIL: snakemake --lint failed for $f"; rc=1; }; done; exit $rc' --
   language: system
   files: '(^|/)Snakefile$|\.smk$'
   pass_filenames: true
@@ -249,7 +325,8 @@
 - id: workflow-sh-strict-mode
   name: Workflow shell scripts must contain set -euo pipefail
   entry: |-
-    bash -c 'rc=0; for f; do grep -qF "set -euo pipefail" "$f" || { echo "FAIL: $f - missing set -euo pipefail"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do grep -qF "set -euo pipefail" "$f" || { echo  \
+      "FAIL: $f - missing set -euo pipefail"; rc=1; }; done; exit $rc' --
   language: system
   files: 'workflow/scripts/.*\.sh$'
   pass_filenames: true
@@ -257,7 +334,9 @@
 - id: conda-env-validate
   name: Conda environment files must be resolvable (libmamba dry-run)
   entry: |-
-    bash -c 'rc=0; for f; do conda env create --solver libmamba -d -f "$f" 2>&1 || { echo "FAIL: conda env create --dry-run failed for $f"; rc=1; }; done; exit $rc' --
+    bash -c 'rc=0; for f; do conda env create --solver libmamba -d -f "$f"  \
+      2>&1 || { echo "FAIL: conda env create --dry-run failed for $f"; rc=1;  \
+      }; done; exit $rc' --
   language: system
   files: 'workflow/envs/.*\.ya?ml$'
   pass_filenames: true
@@ -265,8 +344,8 @@
 - id: snakemake-rulegraph
   name: Snakemake rulegraph visualization
   entry: |-
-    bash -c 'snakemake --rulegraph --forceall 2>/dev/null | dot -Tsvg > workflow/rulegraph.svg'
+    bash -c 'snakemake --rulegraph --forceall 2>/dev/null | dot -Tsvg >  \
+      workflow/rulegraph.svg'
   language: system
   files: '(^|/)Snakefile$|\.smk$'
   pass_filenames: false
-

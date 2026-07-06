@@ -1,7 +1,9 @@
+---
 # sh.pre-commit-hooks.yaml
 # Pre-commit hooks for Bash/shell scripts (.sh).
 #
-# All .sh:        shellcheck lint, shfmt style, strict-mode guard (set -euo pipefail),
+# All .sh:        shellcheck lint, shfmt style, strict-mode guard (set -euo
+# pipefail),
 #                 .sh extension policy, whitespace hygiene, binary guard,
 #                 private-key detection, git hygiene, metadata presence
 # Executable .sh: shebang must be #!/usr/bin/env bash;
@@ -46,7 +48,8 @@ repos:
     hooks:
       - id: forbid-binary
       - id: git-check
-      # Local policy: all shell scripts (executable or not) must use .sh extension
+      # Local policy: all shell scripts (executable or not) must use .sh
+      # extension
       - id: script-must-have-extension
         name: Local policy is to use .sh extension for shell scripts
         types: [shell, executable]
@@ -62,9 +65,12 @@ repos:
 
       # Executable .sh scripts must declare #!/usr/bin/env bash as line 1
       - id: sh-bash-shebang
-        name: Executable .sh scripts must have #!/usr/bin/env bash shebang
+        name: "Executable .sh scripts must have #!/usr/bin/env bash shebang"
         entry: |-
-          bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; head -1 "$f" | grep -qF "#!/usr/bin/env bash" || { echo "FAIL: $f - missing #!/usr/bin/env bash on line 1"; rc=1; }; done; exit $rc' --
+          bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; head -1 "$f" |  \
+            grep -qF "#!/usr/bin/env bash" || { echo  \
+            "FAIL: $f - missing #!/usr/bin/env bash on line 1"; rc=1; };  \
+            done; exit $rc' --
         language: system
         files: '\.sh$'
         exclude: '(^|/)tests/'
@@ -74,7 +80,10 @@ repos:
       - id: sh-usage-banner
         name: Executable .sh scripts must have a Usage banner
         entry: |-
-          bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; grep -qi "usage:" "$f" || { echo "FAIL: $f - missing Usage banner (no \"usage:\" pattern found)"; rc=1; }; done; exit $rc' --
+          bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; grep -qi  \
+            "usage:" "$f" || { echo  \
+            "FAIL: $f - missing Usage banner (no \"usage:\" pattern found)";  \
+            rc=1; }; done; exit $rc' --
         language: system
         files: '\.sh$'
         exclude: '(^|/)tests/|(^|/)test/|(^|/)[^/]*(run|test)[^/]*\.sh$'
@@ -84,7 +93,10 @@ repos:
       - id: sh-strict-mode
         name: Shell scripts must contain set -euo pipefail
         entry: |-
-          bash -c 'rc=0; for f; do grep -qF "set -euo pipefail" "$f" || { echo "FAIL: $f - missing set -euo pipefail (strict mode required)"; rc=1; }; done; exit $rc' --
+          bash -c 'rc=0; for f; do grep -qF "set -euo pipefail" "$f" || {  \
+            echo  \
+            "FAIL: $f - missing set -euo pipefail (strict mode required)";  \
+            rc=1; }; done; exit $rc' --
         language: system
         files: '\.sh$'
         exclude: '(^|/)tests/'
@@ -94,10 +106,17 @@ repos:
       - id: sh-help-version
         name: Executable .sh scripts must exit 0 on --help, --version and -V
         entry: |-
-          bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; bash "$f" --help >/dev/null 2>&1 || { echo "FAIL: bash $f --help exited non-zero"; rc=1; }; bash "$f" --version >/dev/null 2>&1 || { echo "FAIL: bash $f --version exited non-zero"; rc=1; }; bash "$f" -V >/dev/null 2>&1 || { echo "FAIL: bash $f -V exited non-zero"; rc=1; }; done; exit $rc' --
+          bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; bash "$f"  \
+            --help >/dev/null 2>&1 || { echo  \
+            "FAIL: bash $f --help exited non-zero"; rc=1; }; bash "$f"  \
+            --version >/dev/null 2>&1 || { echo  \
+            "FAIL: bash $f --version exited non-zero"; rc=1; }; bash "$f" -V  \
+            >/dev/null 2>&1 || { echo "FAIL: bash $f -V exited non-zero";  \
+            rc=1; }; done; exit $rc' --
         language: system
         files: '\.sh$'
-        exclude: '(^|/)tests/|(^|/)test/|(^|/)(build\.sh|[^/]*(run|test)[^/]*\.sh)$'
+        exclude: "(^|/)tests/|(^|/)test/|(^|/)(build\\.sh|[^/]*(run|test)[^/]*\
+          \\.sh)$"
         pass_filenames: true
 
       # All .sh files must contain the words version, author, email
@@ -105,7 +124,9 @@ repos:
       - id: sh-metadata
         name: Shell scripts must contain version, author and email metadata
         entry: |-
-          bash -c 'rc=0; for f; do for kw in version author email; do grep -qi "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done; done; exit $rc' --
+          bash -c 'rc=0; for f; do for kw in version author email; do grep  \
+            -qi "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1;  \
+            }; done; done; exit $rc' --
         language: system
         files: '\.sh$'
         exclude: '(^|/)tests/|^test\.sh$'

@@ -1,3 +1,4 @@
+---
 # Docker.pre-commit-hooks.yaml
 # Pre-commit hooks for Dockerfiles (Dockerfile, Dockerfile.*, *.dockerfile).
 #
@@ -57,7 +58,10 @@ repos:
       - id: docker-build-check
         name: docker build --check (dry-run lint)
         entry: |-
-          bash -c 'rc=0; for f; do docker build --check --file "$f" "$(dirname "$f")" 2>&1 || { echo "FAIL: docker build --check failed for $f"; rc=1; }; done; exit $rc' --
+          bash -c 'rc=0; for f; do docker build --check --file "$f"  \
+            "$(dirname "$f")" 2>&1 || { echo  \
+            "FAIL: docker build --check failed for $f"; rc=1; }; done; exit  \
+            $rc' --
         language: system
         files: '(^|/)Dockerfile(\.[^/]+)?$|\.dockerfile$'
         pass_filenames: true
@@ -67,7 +71,9 @@ repos:
       - id: docker-metadata
         name: Dockerfiles must contain version, author and email metadata
         entry: |-
-          bash -c 'rc=0; for f; do for kw in version author email; do grep -qi "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1; }; done; done; exit $rc' --
+          bash -c 'rc=0; for f; do for kw in version author email; do grep  \
+            -qi "$kw" "$f" || { echo "FAIL: $f - missing $kw metadata"; rc=1;  \
+            }; done; done; exit $rc' --
         language: system
         files: '(^|/)Dockerfile(\.[^/]+)?$|\.dockerfile$'
         pass_filenames: true
