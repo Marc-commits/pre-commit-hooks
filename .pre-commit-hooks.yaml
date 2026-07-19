@@ -344,8 +344,8 @@
 - id: snakemake-rulegraph
   name: Snakemake rulegraph visualization
   entry: |-
-    bash -c 'snakemake --rulegraph --forceall 2>/dev/null | dot -Tsvg >  \
-      workflow/rulegraph.svg'
+    bash -c 'PYTHONHASHSEED=0 snakemake --rulegraph --forceall  \
+      2>/dev/null | dot -Tsvg > workflow/rulegraph.svg'
   language: system
   files: '(^|/)Snakefile$|\.smk$'
   pass_filenames: false
