@@ -47,6 +47,13 @@
   pass_filenames: false
   always_run: true
 
+- id: validate-config
+  name: validate .pre-commit-config.yaml
+  entry: pre-commit validate-config
+  language: system
+  files: '.pre-commit-config.yaml'
+  pass_filenames: true
+
 - id: readme-no-local-paths
   name: README.md should not contain local paths or bare GitHub shorthands
   entry: scripts/check-readme-paths.sh
