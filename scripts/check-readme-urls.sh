@@ -2,7 +2,7 @@
 # Check README.md files for unreachable URLs.
 # Exits 1 if broken URLs found, 0 otherwise.
 #
-# Set GITHUB_TOKEN to also check URLs on private GitHub repos. If a
+# Set GITHUB_TOKEN_PC_CHECK_README_URLS to also check URLs on private GitHub repos. If a
 # github.com/raw.githubusercontent.com/gist.github.com URL is unreachable
 # anonymously but reachable with the token, it's assumed to be a private
 # repo: a warning is printed but the check does not fail.
@@ -17,28 +17,28 @@ extract_urls() {
 	grep -oE 'https?://[-a-zA-Z0-9._~:/?#@!$&()*+,;=%]*' <<<"${line}" | sed 's/[,.)>"`]*$//' || true
 }
 
-# Helper: Is this a GitHub-hosted URL that would accept a GITHUB_TOKEN?
+# Helper: Is this a GitHub-hosted URL that would accept a GITHUB_TOKEN_PC_CHECK_README_URLS?
 is_github_url() {
 	local url="$1"
 	[[ "${url}" =~ ^https?://(www\.)?(github\.com|raw\.githubusercontent\.com|gist\.github\.com)/ ]]
 }
 
 # Helper: Is this a github.com repo/blob/etc. page (as opposed to raw content or a gist)?
-# github.com's web UI uses session-cookie auth, not GITHUB_TOKEN, so a private
+# github.com's web UI uses session-cookie auth, not GITHUB_TOKEN_PC_CHECK_README_URLS, so a private
 # repo's pages must be confirmed via the REST API instead of the page itself.
 is_github_web_url() {
 	local url="$1"
 	[[ "${url}" =~ ^https?://(www\.)?github\.com/ ]]
 }
 
-# Helper: Confirm a github.com/OWNER/REPO[/...] URL belongs to a repo GITHUB_TOKEN can see
+# Helper: Confirm a github.com/OWNER/REPO[/...] URL belongs to a repo GITHUB_TOKEN_PC_CHECK_README_URLS can see
 check_github_repo_via_api() {
 	local url="$1"
 	local owner_repo status
 	owner_repo=$(sed -nE 's#^https?://(www\.)?github\.com/([^/]+/[^/]+).*#\2#p' <<<"${url}")
 	owner_repo="${owner_repo%.git}"
 	[[ -z "${owner_repo}" ]] && return 1
-	status=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 --retry 2 --retry-delay 1 -H "Authorization: Bearer ${GITHUB_TOKEN}" "https://api.github.com/repos/${owner_repo}" 2>/dev/null)
+	status=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 --retry 2 --retry-delay 1 -H "Authorization: Bearer ${GITHUB_TOKEN_PC_CHECK_README_URLS}" "https://api.github.com/repos/${owner_repo}" 2>/dev/null)
 	[[ -n "${status}" ]] && [[ "${status}" -ge 200 ]] && [[ "${status}" -lt 300 ]]
 }
 
@@ -88,14 +88,14 @@ for file in "$@"; do
 			status=$(check_url "${url}")
 			rc=$?
 			if [[ "${rc}" -ne 0 ]]; then
-				if [[ -n "${GITHUB_TOKEN:-}" ]] && is_github_url "${url}"; then
+				if [[ -n "${GITHUB_TOKEN_PC_CHECK_README_URLS:-}" ]] && is_github_url "${url}"; then
 					if is_github_web_url "${url}"; then
 						private_repo_ok=$(check_github_repo_via_api "${url}" && echo 1 || echo 0)
 					else
-						private_repo_ok=$(check_url "${url}" -H "Authorization: Bearer ${GITHUB_TOKEN}" >/dev/null && echo 1 || echo 0)
+						private_repo_ok=$(check_url "${url}" -H "Authorization: Bearer ${GITHUB_TOKEN_PC_CHECK_README_URLS}" >/dev/null && echo 1 || echo 0)
 					fi
 					if [[ "${private_repo_ok}" -eq 1 ]]; then
-						echo "WARN: ${file}:${line_no}: private GitHub repo (unreachable anonymously, OK with GITHUB_TOKEN): ${url}"
+						echo "WARN: ${file}:${line_no}: private GitHub repo (unreachable anonymously, OK with GITHUB_TOKEN_PC_CHECK_README_URLS): ${url}"
 						continue
 					fi
 				fi
