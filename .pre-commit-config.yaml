@@ -1,0 +1,10 @@
+---
+repos:
+  - repo: local
+    hooks:
+      - id: validate-manifest
+        name: validate .pre-commit-hooks.yaml manifest
+        entry: pre-commit validate-manifest
+        language: system
+        files: '.pre-commit-hooks.yaml'
+        pass_filenames: true
