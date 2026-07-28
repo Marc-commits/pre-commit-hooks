@@ -356,3 +356,10 @@
   language: system
   files: '(^|/)Snakefile$|\.smk$'
   pass_filenames: false
+
+- id: snakedeploy-pin-conda-envs
+  name: snakedeploy pin-conda-envs
+  entry: snakedeploy pin-conda-envs
+  language: system
+  files: ^workflow/envs/.*\.ya?ml$
+  pass_filenames: true
