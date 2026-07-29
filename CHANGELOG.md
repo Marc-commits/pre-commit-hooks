@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.3.2
+
+- Fixed `snakemake-lint`: it ran `snakemake --lint --snakefile "$f"` once per
+  matched file (`pass_filenames: true`), which fails on any included `.smk`
+  rule module since those aren't standalone Snakefiles and can't resolve
+  names/config outside the top-level Snakefile's include graph. Now runs
+  `snakemake --lint` once from the repo root (`pass_filenames: false`),
+  matching how consuming repos' own hand-rolled equivalents already did it.
+- `snakemake-lint` now forwards extra `args:` (e.g. `--configfile path.yaml`,
+  `--snakefile path/to/Snakefile`) to `snakemake --lint`, for repos whose
+  Snakefile can't resolve a default config/entry point on its own.
+
+## v0.3.1
+
+- Added `snakedeploy-pin-conda-envs` hook.
+
 ## v0.3.0
 
 - **Breaking:** `readme-url-check` now reads `GITHUB_TOKEN_PC_CHECK_README_URLS`

@@ -322,12 +322,20 @@
 
 - id: snakemake-lint
   name: snakemake --lint
+  # Runs once from the repo root (not per matched file): included .smk rule
+  # modules aren't standalone Snakefiles and fail to lint in isolation, since
+  # names/config they reference are only resolved once the top-level Snakefile
+  # includes them. `snakemake --lint` already walks the full include graph.
+  # Consuming repos whose Snakefile can't resolve a default config on its own
+  # (schema-validated config with no built-in default, non-default Snakefile
+  # name, ...) can pass `args: [--configfile, path/to/config.yaml]` and/or
+  # `--snakefile path/to/Snakefile` when declaring this hook.
   entry: |-
-    bash -c 'rc=0; for f; do snakemake --lint --snakefile "$f" 2>&1 || { echo  \
-      "FAIL: snakemake --lint failed for $f"; rc=1; }; done; exit $rc' --
+    bash -c 'snakemake --lint "$@" 2>&1 || { echo  \
+      "FAIL: snakemake --lint failed"; exit 1; }' --
   language: system
   files: '(^|/)Snakefile$|\.smk$'
-  pass_filenames: true
+  pass_filenames: false
 
 - id: workflow-sh-strict-mode
   name: Workflow shell scripts must contain set -euo pipefail
