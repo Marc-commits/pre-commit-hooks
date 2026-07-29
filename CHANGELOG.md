@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.3
+
+- Fixed `conda-env-validate`: `conda env create --dry-run -f "$f"` with no
+  `--name`/`--prefix` errors out (`CondaEnvException: Unable to create
+  environment`) on current conda for any env yaml lacking an internal `name:`
+  field — the norm for Snakemake-managed envs, which generate their own hashed
+  env names and ignore `name:` anyway. Now creates a disposable `--prefix` per
+  check, so no env yaml needs a `name:` field to pass.
+
 ## v0.3.2
 
 - Fixed `snakemake-lint`: it ran `snakemake --lint --snakefile "$f"` once per
