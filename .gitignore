@@ -48,4 +48,4 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/linux
 *.txt
-origin
+/2026*.md
