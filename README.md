@@ -7,7 +7,7 @@ via `pre-commit`'s remote-hook resolution.
 
 ```yaml
 - repo: https://github.com/Marc-commits/pre-commit-hooks
-  rev: v0.3.3
+  rev: v0.4.0
   hooks:
     - id: readme-url-check
     - id: sh-strict-mode
@@ -18,12 +18,13 @@ via `pre-commit`'s remote-hook resolution.
 
 - **Repo/config**: `version-sync`, `validate-config`
 - **README**: `readme-no-local-paths`, `readme-url-check`
-- **R**: `r-script-shebang`, `r-script-runnable`, `r-script-stdin-stdout`,
-  `r-metadata`, `r-script-startup-banner`, `r-script-quiet-banner`,
-  `r-script-no-pkg-startup`, `r-script-session-info`
-- **Python**: `py-shebang`, `py-marimo-check`, `py-help-version`, `py-metadata`
+- **R**: `r-script-shebang`, `r-script-runnable`, `r-script-tldr`,
+  `r-script-stdin-stdout`, `r-metadata`, `r-script-startup-banner`,
+  `r-script-quiet-banner`, `r-script-no-pkg-startup`, `r-script-session-info`
+- **Python**: `py-shebang`, `py-marimo-check`, `py-help-version`, `py-tldr`,
+  `py-metadata`
 - **Shell**: `sh-bash-shebang`, `sh-usage-banner`, `sh-strict-mode`,
-  `sh-help-version`, `sh-metadata`
+  `sh-help-version`, `sh-tldr`, `sh-metadata`
 - **Docker**: `docker-build-check`, `docker-metadata`
 - **Snakemake/conda**: `snakemake-lint`, `workflow-sh-strict-mode`,
   `conda-env-validate`, `snakemake-rulegraph`

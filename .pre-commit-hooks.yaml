@@ -97,6 +97,19 @@
   exclude: '(^|/)tests/'
   pass_filenames: true
 
+- id: r-script-tldr
+  name: Executable .r scripts must exit 0 and print output on --tldr
+  entry: |-
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; for runner in r  \
+      Rscript; do out=$("$runner" "$f" --tldr 2>&1); ec=$?; [ $ec -eq 0 ]  \
+      || { echo "FAIL: $runner $f --tldr exited non-zero"; rc=1; }; [ -n  \
+      "$out" ] || { echo "FAIL: $runner $f --tldr produced no output";  \
+      rc=1; }; done; done; exit $rc' --
+  language: system
+  files: '\.r$'
+  exclude: '(^|/)tests/'
+  pass_filenames: true
+
 - id: r-script-stdin-stdout
   name: Executable .r scripts must advertise stdin and stdout in --help
   entry: |-
@@ -223,6 +236,20 @@
   exclude: '(^|/)tests/'
   pass_filenames: true
 
+- id: py-tldr
+  name: Executable .py scripts must exit 0 and print output on --tldr
+  entry: |-
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; if grep -qE  \
+      "^# /// script" "$f" || { grep -q "import marimo" "$f" && grep -q  \
+      "@app\.cell" "$f"; }; then out=$(uv run --script "$f" --tldr 2>&1);  \
+      ec=$?; else out=$("$f" --tldr 2>&1); ec=$?; fi; [ $ec -eq 0 ] || {  \
+      echo "FAIL: $f --tldr exited non-zero"; rc=1; }; [ -n "$out" ] || {  \
+      echo "FAIL: $f --tldr produced no output"; rc=1; }; done; exit $rc' --
+  language: system
+  files: '\.py$'
+  exclude: '(^|/)tests/'
+  pass_filenames: true
+
 - id: py-metadata
   name: Python files must contain version, author and email metadata
   entry: |-
@@ -280,6 +307,19 @@
       "FAIL: bash $f --version exited non-zero"; rc=1; }; bash "$f" -V  \
       >/dev/null 2>&1 || { echo "FAIL: bash $f -V exited non-zero"; rc=1; };  \
       done; exit $rc' --
+  language: system
+  files: '\.sh$'
+  exclude: '(^|/)tests/|(^|/)test/|(^|/)(build\.sh|[^/]*(run|test)[^/]*\.sh)$'
+  pass_filenames: true
+
+- id: sh-tldr
+  name: Executable .sh scripts must exit 0 and print output on --tldr
+  entry: |-
+    bash -c 'rc=0; for f; do [[ -x "$f" ]] || continue; out=$(bash "$f"  \
+      --tldr 2>&1); ec=$?; [ $ec -eq 0 ] || { echo  \
+      "FAIL: bash $f --tldr exited non-zero"; rc=1; }; [ -n "$out" ] || {  \
+      echo "FAIL: bash $f --tldr produced no output"; rc=1; }; done; exit  \
+      $rc' --
   language: system
   files: '\.sh$'
   exclude: '(^|/)tests/|(^|/)test/|(^|/)(build\.sh|[^/]*(run|test)[^/]*\.sh)$'

@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.4.0
+
+- Added `py-tldr`, `sh-tldr`, and `r-script-tldr` hooks: executable scripts
+  must exit 0 and print output when called with `--tldr`, mirroring the
+  existing `--help`/`--version` checks.
+
 ## v0.3.3
 
 - Fixed `conda-env-validate`: `conda env create --dry-run -f "$f"` with no
