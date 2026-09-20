@@ -15,3 +15,4 @@
   requires a `"with args:"` section in the banner that older consumers
   like FC_FC_2D_plot.r don't print — check whether that's an intended
   contract change before repinning consumers to a new tag.
+- [ ] Confirm a self-hosted runner labeled 'self-hosted' is registered and that this repo's first PR exercises .github/workflows/pre-commit.yml end-to-end.

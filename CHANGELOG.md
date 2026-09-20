@@ -71,3 +71,9 @@
 
 - Initial release: `version-sync`, `readme-no-local-paths`, `readme-url-check`,
   and the R/Python/shell/Docker/Snakemake local policy hooks.
+
+## [Unreleased]
+
+### Added
+
+- Added .github/workflows/pre-commit.yml: runs `uvx pre-commit run --all-files` on `runs-on: self-hosted` for every pull request.
