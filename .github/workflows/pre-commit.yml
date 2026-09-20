@@ -1,0 +1,32 @@
+---
+name: pre-commit
+
+"on":
+  pull_request:
+
+concurrency:
+  group: >-
+    pre-commit-${{ github.repository }}-${{
+    github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  pre-commit:
+    runs-on: self-hosted
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Verify uv/uvx is available
+        run: |
+          if ! command -v uvx >/dev/null 2>&1; then
+            echo "::error::uvx not found on self-hosted runner"
+            echo "::error::install uv: https://docs.astral.sh/uv/"
+            exit 1
+          fi
+
+      - name: Run pre-commit
+        run: uvx pre-commit run --all-files --show-diff-on-failure
