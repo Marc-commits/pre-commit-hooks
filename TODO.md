@@ -15,3 +15,6 @@
   requires a `"with args:"` section in the banner that older consumers
   like FC_FC_2D_plot.r don't print — check whether that's an intended
   contract change before repinning consumers to a new tag.
+- [ ] Roll out the `Defaults:` `--help` one-liner (`/script-audit-help`) to
+  scripts repo by repo, then add the `*-help-defaults` ids and bump `rev` in
+  each consumer's `.pre-commit-config.yaml`.

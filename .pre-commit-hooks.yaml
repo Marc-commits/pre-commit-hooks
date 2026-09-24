@@ -124,6 +124,14 @@
   exclude: '(^|/)tests/'
   pass_filenames: true
 
+- id: r-script-help-defaults
+  name: Executable .r scripts must end --help with a pastable Defaults one-liner
+  entry: scripts/check-help-defaults.sh
+  language: script
+  files: '\.r$'
+  exclude: '(^|/)tests/'
+  pass_filenames: true
+
 - id: r-metadata
   name: R files must contain version, author and email metadata
   entry: |-
@@ -250,6 +258,14 @@
   exclude: '(^|/)tests/'
   pass_filenames: true
 
+- id: py-help-defaults
+  name: Executable .py scripts must end --help with a pastable Defaults one-liner
+  entry: scripts/check-help-defaults.sh
+  language: script
+  files: '\.py$'
+  exclude: '(^|/)tests/'
+  pass_filenames: true
+
 - id: py-metadata
   name: Python files must contain version, author and email metadata
   entry: |-
@@ -321,6 +337,14 @@
       echo "FAIL: bash $f --tldr produced no output"; rc=1; }; done; exit  \
       $rc' --
   language: system
+  files: '\.sh$'
+  exclude: '(^|/)tests/|(^|/)test/|(^|/)(build\.sh|[^/]*(run|test)[^/]*\.sh)$'
+  pass_filenames: true
+
+- id: sh-help-defaults
+  name: Executable .sh scripts must end --help with a pastable Defaults one-liner
+  entry: scripts/check-help-defaults.sh
+  language: script
   files: '\.sh$'
   exclude: '(^|/)tests/|(^|/)test/|(^|/)(build\.sh|[^/]*(run|test)[^/]*\.sh)$'
   pass_filenames: true

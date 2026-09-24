@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- `r-script-help-defaults`, `py-help-defaults` and `sh-help-defaults` hooks
+  (backed by `scripts/check-help-defaults.sh`). Executable scripts' `--help`
+  must end with a `Defaults:` section holding a pastable one-liner that
+  invokes the script with every default spelled out, so users can copy the
+  line and edit it instead of reconstructing defaults from the option list.
+
 ## v0.4.0
 
 - Added `py-tldr`, `sh-tldr`, and `r-script-tldr` hooks: executable scripts
