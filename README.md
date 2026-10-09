@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [pre-commit-hooks](#pre-commit-hooks)
+  - [Usage](#usage)
+  - [Hooks](#hooks)
+    - [`*-help-defaults`: pastable defaults one-liner](#-help-defaults-pastable-defaults-one-liner)
+    - [`readme-url-check` and private GitHub repos](#readme-url-check-and-private-github-repos)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # pre-commit-hooks
 
 Local policy hooks shared across Marc-commits' bioinformatics repos, consumed
@@ -7,7 +19,7 @@ via `pre-commit`'s remote-hook resolution.
 
 ```yaml
 - repo: https://github.com/Marc-commits/pre-commit-hooks
-  rev: v0.5.0
+  rev: v0.6.0
   hooks:
     - id: readme-url-check
     - id: sh-strict-mode
@@ -17,7 +29,10 @@ via `pre-commit`'s remote-hook resolution.
 ## Hooks
 
 - **Repo/config**: `version-sync`, `validate-config`
-- **README**: `readme-no-local-paths`, `readme-url-check`
+- **README/docs**: `readme-no-local-paths`, `readme-url-check`, `doctoc`
+  (keeps a table of contents in root `*.md` files; needs `language: node`, so
+  this repo ships a stub `package.json`; files with a single heading get an
+  empty marker block that fills in once sections are added)
 - **R**: `r-script-shebang`, `r-script-runnable`, `r-script-tldr`,
   `r-script-help-defaults`, `r-script-stdin-stdout`, `r-metadata`,
   `r-script-startup-banner`, `r-script-quiet-banner`, `r-script-no-pkg-startup`,

@@ -68,6 +68,14 @@
   files: '(^|/)README\.md$'
   pass_filenames: true
 
+- id: doctoc
+  name: doctoc table of contents for root *.md files
+  entry: doctoc --mintocitems 2
+  language: node
+  additional_dependencies: ['doctoc@2.5.0']
+  files: '^[^/]+\.md$'
+  pass_filenames: true
+
 # ── from R.pre-commit-hooks.yaml ────────────────────────────────────────────
 
 - id: r-script-shebang
@@ -259,7 +267,7 @@
   pass_filenames: true
 
 - id: py-help-defaults
-  name: Executable .py scripts must end --help with a pastable Defaults one-liner
+  name: Executable .py scripts must end --help with a pastable Defaults line
   entry: scripts/check-help-defaults.sh
   language: script
   files: '\.py$'
@@ -342,7 +350,7 @@
   pass_filenames: true
 
 - id: sh-help-defaults
-  name: Executable .sh scripts must end --help with a pastable Defaults one-liner
+  name: Executable .sh scripts must end --help with a pastable Defaults line
   entry: scripts/check-help-defaults.sh
   language: script
   files: '\.sh$'

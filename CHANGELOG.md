@@ -1,4 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Changelog](#changelog)
+  - [v0.6.0](#v060)
+    - [Added](#added)
+    - [Fixed](#fixed)
+  - [v0.5.0](#v050)
+    - [Added](#added-1)
+  - [v0.4.0](#v040)
+  - [v0.3.3](#v033)
+  - [v0.3.2](#v032)
+  - [v0.3.1](#v031)
+  - [v0.3.0](#v030)
+  - [v0.2.1](#v021)
+  - [v0.2.0](#v020)
+  - [v0.1.4](#v014)
+  - [v0.1.3](#v013)
+  - [v0.1.2](#v012)
+  - [v0.1.1](#v011)
+  - [v0.1.0](#v010)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Changelog
+
+## v0.6.0
+
+### Added
+
+- `doctoc` hook: generates/updates a table of contents in root-level `*.md`
+  files (`doctoc --mintocitems 2`, pinned `doctoc@2.5.0`, `language: node`).
+  Files with a single heading (e.g. `TODO.md`) only get an empty marker block.
+- `package.json` stub (`private`, version `0.0.0`): pre-commit's
+  `language: node` refuses hook repos without one. The repo version stays in
+  git tags.
+
+### Fixed
+
+- `py-help-defaults` / `sh-help-defaults`: shortened hook names that exceeded
+  yamllint's 80-column limit.
 
 ## v0.5.0
 
