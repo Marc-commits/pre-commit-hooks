@@ -6,6 +6,9 @@
 # github.com/raw.githubusercontent.com/gist.github.com URL is unreachable
 # anonymously but reachable with the token, it's assumed to be a private
 # repo: a warning is printed but the check does not fail.
+#
+# The doctoc-generated block (<!-- START doctoc ... --> to <!-- END doctoc -->)
+# is skipped: its "generated with DocToc" header is not author-written content.
 
 found_any=0
 
@@ -69,10 +72,20 @@ check_url() {
 # Process each file
 for file in "$@"; do
 	line_no=0
+	in_doctoc=0
 	declare -A seen_urls # Track which URLs we've already checked/warned
 
 	while IFS= read -r line; do
 		line_no=$((line_no + 1))
+
+		# Skip the doctoc-generated block
+		if [[ "${line}" == *"<!-- START doctoc"* ]]; then
+			in_doctoc=1
+		fi
+		if [[ "${in_doctoc}" -eq 1 ]]; then
+			[[ "${line}" == *"<!-- END doctoc"* ]] && in_doctoc=0
+			continue
+		fi
 
 		# Extract URLs from this line
 		while read -r url; do

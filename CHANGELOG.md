@@ -3,6 +3,8 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Changelog](#changelog)
+  - [v0.6.1](#v061)
+    - [Fixed](#fixed)
   - [v0.6.0](#v060)
     - [Added](#added)
     - [Fixed](#fixed)
@@ -24,6 +26,15 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Changelog
+
+## v0.6.1
+
+### Fixed
+
+- `readme-url-check`: skips the doctoc-generated block (`<!-- START doctoc`
+  to `<!-- END doctoc`). Its "generated with DocToc" header link was parsed
+  as `https://github.com/thlorenz/doctoc)*` and reported as a 404, so every
+  README with a TOC failed.
 
 ## v0.6.0
 
