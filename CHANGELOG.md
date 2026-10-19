@@ -27,6 +27,13 @@
 
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- `conda-env-validate`: resolves with `--solver rattler` instead of
+  `libmamba` (faster; requires `conda-rattler-solver` in the conda base env).
+
 ## v0.6.1
 
 ### Fixed

@@ -44,6 +44,8 @@ via `pre-commit`'s remote-hook resolution.
 - **Docker**: `docker-build-check`, `docker-metadata`
 - **Snakemake/conda**: `snakemake-lint`, `workflow-sh-strict-mode`,
   `conda-env-validate`, `snakemake-rulegraph`
+  (`conda-env-validate` needs `conda-rattler-solver`:
+  `conda install -n base conda-rattler-solver`)
 
 Full hook definitions live in `.pre-commit-hooks.yaml`.
 

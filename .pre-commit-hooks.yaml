@@ -419,7 +419,7 @@
   pass_filenames: true
 
 - id: conda-env-validate
-  name: Conda environment files must be resolvable (libmamba dry-run)
+  name: Conda environment files must be resolvable (rattler dry-run)
   # --dry-run alone isn't enough on current conda: it still requires
   # --name/--prefix and errors out for any env yaml without an internal
   # name: field (the norm for Snakemake-managed envs, which generates its
@@ -427,7 +427,7 @@
   # --prefix so no env yaml needs a name: field to pass.
   entry: |-
     bash -c 'rc=0; for f; do tmpdir=$(mktemp -d); conda env create  \
-      --solver libmamba --dry-run --prefix "$tmpdir/env" -f "$f" 2>&1  \
+      --solver rattler --dry-run --prefix "$tmpdir/env" -f "$f" 2>&1  \
       || { echo "FAIL: conda env create --dry-run failed for $f"; rc=1;  \
       }; rm -rf "$tmpdir"; done; exit $rc' --
   language: system

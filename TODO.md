@@ -22,4 +22,3 @@
 - [ ] Roll out the `Defaults:` `--help` one-liner (`/script-audit-help`) to
   scripts repo by repo, then add the `*-help-defaults` ids and bump `rev` in
   each consumer's `.pre-commit-config.yaml`.
-- [ ] use solver rattler
