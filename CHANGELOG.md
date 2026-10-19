@@ -3,11 +3,13 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Changelog](#changelog)
+  - [v0.7.0](#v070)
+    - [Changed](#changed)
   - [v0.6.1](#v061)
     - [Fixed](#fixed)
   - [v0.6.0](#v060)
     - [Added](#added)
-    - [Fixed](#fixed)
+    - [Fixed](#fixed-1)
   - [v0.5.0](#v050)
     - [Added](#added-1)
   - [v0.4.0](#v040)
@@ -27,7 +29,7 @@
 
 # Changelog
 
-## [Unreleased]
+## v0.7.0
 
 ### Changed
 
