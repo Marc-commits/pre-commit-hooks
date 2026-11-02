@@ -19,7 +19,7 @@ via `pre-commit`'s remote-hook resolution.
 
 ```yaml
 - repo: https://github.com/Marc-commits/pre-commit-hooks
-  rev: v0.7.0
+  rev: v0.8.0
   hooks:
     - id: readme-url-check
     - id: sh-strict-mode
