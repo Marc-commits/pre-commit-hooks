@@ -35,8 +35,8 @@ via `pre-commit`'s remote-hook resolution.
   empty marker block that fills in once sections are added)
 - **R**: `r-script-shebang`, `r-script-runnable`, `r-script-tldr`,
   `r-script-help-defaults`, `r-script-stdin-stdout`, `r-metadata`,
-  `r-script-startup-banner`, `r-script-quiet-banner`, `r-script-no-pkg-startup`,
-  `r-script-session-info`
+  `r-script-startup-banner`, `r-script-quiet-banner`, `r-script-run-banner`,
+  `r-script-no-pkg-startup`, `r-script-session-info`
 - **Python**: `py-shebang`, `py-marimo-check`, `py-help-version`, `py-tldr`,
   `py-help-defaults`, `py-metadata`
 - **Shell**: `sh-bash-shebang`, `sh-usage-banner`, `sh-strict-mode`,

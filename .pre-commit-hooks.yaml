@@ -178,6 +178,26 @@
   exclude: '(^|/)tests/'
   pass_filenames: true
 
+- id: r-script-run-banner
+  name: Executable .r scripts must print the startup banner on every run
+  # Invalid sentinel invocation: the banner must be printed before option
+  # parsing, so even a failing run records its args. No backslash
+  # continuations: YAML indentation would leak into the shell string.
+  entry: |-
+    bash -c 'rc=0; b="^This is .+ running R "
+    for f; do [[ -x "$f" ]] || continue
+    out=$(Rscript "$f" --sentinel-arg 2>&1 </dev/null)
+    grep -qE "${b}[0-9.]+ with args: --sentinel-arg" <<<"$out" ||
+    { echo "FAIL: $f prints no banner with args on a run"; rc=1; }
+    outq=$(Rscript "$f" --quiet --sentinel-arg 2>&1 </dev/null)
+    grep -qE "$b" <<<"$outq" &&
+    { echo "FAIL: $f --quiet still prints the banner"; rc=1; }
+    done; exit $rc' --
+  language: system
+  files: '\.r$'
+  exclude: '(^|/)tests/'
+  pass_filenames: true
+
 - id: r-script-no-pkg-startup
   name: "Executable .r scripts must not print package startup messages"
   entry: |-

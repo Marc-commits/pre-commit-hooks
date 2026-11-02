@@ -29,6 +29,17 @@
 
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- `r-script-run-banner` hook: executable `.r` scripts must print the startup
+  banner (`This is <x> running R <v> with args: ...`) on every run, not only
+  for `--version`, and `--quiet` must suppress it. Checked with a sentinel
+  invocation (`--sentinel-arg`), so the banner has to be printed before
+  option parsing. New id, so existing consumers of
+  `r-script-startup-banner` keep working until they opt in.
+
 ## v0.7.0
 
 ### Changed
