@@ -3,15 +3,17 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Changelog](#changelog)
+  - [v0.8.1](#v081)
+    - [Fixed](#fixed)
   - [v0.8.0](#v080)
     - [Added](#added)
   - [v0.7.0](#v070)
     - [Changed](#changed)
   - [v0.6.1](#v061)
-    - [Fixed](#fixed)
+    - [Fixed](#fixed-1)
   - [v0.6.0](#v060)
     - [Added](#added-1)
-    - [Fixed](#fixed-1)
+    - [Fixed](#fixed-2)
   - [v0.5.0](#v050)
     - [Added](#added-2)
   - [v0.4.0](#v040)
@@ -30,6 +32,17 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Changelog
+
+## v0.8.1
+
+### Fixed
+
+- `readme-url-check`: skips loopback URLs (`localhost`, `127.0.0.0/8`,
+  `0.0.0.0`, `[::1]`). A README linking to a local service (e.g. RStudio on
+  `http://127.0.0.1:8787`) failed the hook whenever that service was down, so
+  commits only passed with the Docker container running. IPv6 literals, which
+  `extract_urls` truncated to a bare `http://` and reported as unreachable,
+  are skipped too.
 
 ## v0.8.0
 

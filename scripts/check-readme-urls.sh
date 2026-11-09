@@ -9,6 +9,9 @@
 #
 # The doctoc-generated block (<!-- START doctoc ... --> to <!-- END doctoc -->)
 # is skipped: its "generated with DocToc" header is not author-written content.
+#
+# Loopback URLs (localhost, 127.0.0.0/8, 0.0.0.0, [::1]) are skipped: they can't be
+# verified from another machine or CI, and a stopped local service isn't a broken link.
 
 found_any=0
 
@@ -18,6 +21,13 @@ extract_urls() {
 	local line="$1"
 	# Match http(s) URLs: start with https?:// and grab word chars, dots, slashes, hyphens, underscores
 	grep -oE 'https?://[-a-zA-Z0-9._~:/?#@!$&()*+,;=%]*' <<<"${line}" | sed 's/[,.)>"`]*$//' || true
+}
+
+# Helper: Is this a loopback URL (localhost, 127.0.0.0/8, 0.0.0.0, [::1])?
+# These can't be verified from another machine or CI, so they're skipped.
+is_local_url() {
+	local url="$1"
+	[[ "${url}" =~ ^https?://(([^/@]*@)?)(localhost|[^/:@]+\.localhost|127(\.[0-9]+){3}|0\.0\.0\.0|\[::1\])([:/?#]|$) ]]
 }
 
 # Helper: Is this a GitHub-hosted URL that would accept a GITHUB_TOKEN_PC_CHECK_README_URLS?
@@ -90,6 +100,13 @@ for file in "$@"; do
 		# Extract URLs from this line
 		while read -r url; do
 			[[ -z "${url}" ]] && continue
+
+			# Bare scheme: extract_urls has no [ ] in its character class, so an IPv6
+			# literal like http://[::1]:8787 is cut down to "http://". Nothing to check.
+			[[ "${url}" =~ ^https?://$ ]] && continue
+
+			# Loopback URLs can't be checked meaningfully
+			is_local_url "${url}" && continue
 
 			# Skip if we've already warned about this URL
 			if [[ -n "${seen_urls[${url}]}" ]]; then

@@ -70,6 +70,10 @@ drift from the real defaults.
 
 ### `readme-url-check` and private GitHub repos
 
+Loopback URLs (`localhost`, `127.0.0.0/8`, `0.0.0.0`, `[::1]`) are skipped, so
+a README can link to a local service (e.g. RStudio on `http://127.0.0.1:8787`)
+without the commit depending on that service running.
+
 By default this hook only confirms URLs are reachable anonymously. To also
 confirm private-repo URLs are valid (rather than just flagging them as
 unreachable), export `GITHUB_TOKEN_PC_CHECK_README_URLS` with a token that can
