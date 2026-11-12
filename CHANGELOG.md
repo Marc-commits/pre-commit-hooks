@@ -3,7 +3,7 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Changelog](#changelog)
-  - [[Unreleased]](#unreleased)
+  - [v0.9.0](#v090)
     - [Added](#added)
   - [v0.8.1](#v081)
     - [Fixed](#fixed)
@@ -35,7 +35,7 @@
 
 # Changelog
 
-## [Unreleased]
+## v0.9.0
 
 ### Added
 
