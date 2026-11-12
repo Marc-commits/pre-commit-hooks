@@ -3,19 +3,21 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Changelog](#changelog)
+  - [[Unreleased]](#unreleased)
+    - [Added](#added)
   - [v0.8.1](#v081)
     - [Fixed](#fixed)
   - [v0.8.0](#v080)
-    - [Added](#added)
+    - [Added](#added-1)
   - [v0.7.0](#v070)
     - [Changed](#changed)
   - [v0.6.1](#v061)
     - [Fixed](#fixed-1)
   - [v0.6.0](#v060)
-    - [Added](#added-1)
+    - [Added](#added-2)
     - [Fixed](#fixed-2)
   - [v0.5.0](#v050)
-    - [Added](#added-2)
+    - [Added](#added-3)
   - [v0.4.0](#v040)
   - [v0.3.3](#v033)
   - [v0.3.2](#v032)
@@ -32,6 +34,13 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Changelog
+
+## [Unreleased]
+
+### Added
+
+- `just-fmt-check`: runs `just --fmt --check --unstable --justfile <file>` on
+  `justfile`, `.justfile` and `*.just` (`--fmt` is an unstable just feature).
 
 ## v0.8.1
 

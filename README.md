@@ -33,6 +33,7 @@ via `pre-commit`'s remote-hook resolution.
   (keeps a table of contents in root `*.md` files; needs `language: node`, so
   this repo ships a stub `package.json`; files with a single heading get an
   empty marker block that fills in once sections are added)
+- **Just**: `just-fmt-check` (needs `just` on PATH)
 - **R**: `r-script-shebang`, `r-script-runnable`, `r-script-tldr`,
   `r-script-help-defaults`, `r-script-stdin-stdout`, `r-metadata`,
   `r-script-startup-banner`, `r-script-quiet-banner`, `r-script-run-banner`,
