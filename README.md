@@ -43,8 +43,12 @@ via `pre-commit`'s remote-hook resolution.
 - **Shell**: `sh-bash-shebang`, `sh-usage-banner`, `sh-strict-mode`,
   `sh-help-version`, `sh-tldr`, `sh-help-defaults`, `sh-metadata`
 - **Docker**: `docker-build-check`, `docker-metadata`
-- **Snakemake/conda**: `snakemake-lint`, `workflow-sh-strict-mode`,
-  `conda-env-validate`, `snakemake-rulegraph`
+- **Snakemake/conda**: `snakemake-lint`, `snakemake-config-validate`,
+  `workflow-sh-strict-mode`, `conda-env-validate`, `snakemake-rulegraph`
+  (`snakemake-config-validate` validates `config/config.yaml` and
+  `config/example.config.yaml` against `workflow/schemas/config.schema.yaml`
+  with check-jsonschema via `uvx`; override `files:` to add other complete
+  configs, and do not pass `args:`)
   (`conda-env-validate` needs `conda-rattler-solver`:
   `conda install -n base conda-rattler-solver`)
 

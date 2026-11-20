@@ -438,6 +438,34 @@
   files: '(^|/)Snakefile$|\.smk$'
   pass_filenames: false
 
+- id: snakemake-config-validate
+  name: Workflow config files must match workflow/schemas/config.schema.yaml
+  # Static, snakemake-free counterpart of the validate() call in the
+  # Snakefile (check-jsonschema reports every error, validate() only the
+  # first). Validates *complete* configs only: files that are merged onto a
+  # base via --configfile (overlays) fail standalone, so consumers narrow or
+  # widen `files:` per repo instead of using the default. Runs on the
+  # default config files when only the schema changed. Needs uv (uvx fetches
+  # a pinned check-jsonschema). Do not pass `args:` (they would be read as
+  # file names).
+  entry: |-
+    bash -c '
+    S=workflow/schemas/config.schema.yaml
+    args=()
+    for f; do [ "$f" = "$S" ] || args+=("$f"); done
+    if [ "${#args[@]}" -eq 0 ]; then
+      for f in config/config.yaml config/example.config.yaml config/example_config.yaml; do
+        [ -f "$f" ] && args+=("$f")
+      done
+    fi
+    [ "${#args[@]}" -eq 0 ] && exit 0
+    exec uvx --from check-jsonschema==0.39.0 check-jsonschema \
+      --schemafile "$S" "${args[@]}"
+    ' --
+  language: system
+  files: '^(config/(config|example[._]config)\.ya?ml|workflow/schemas/config\.schema\.yaml)$'
+  pass_filenames: true
+
 - id: workflow-sh-strict-mode
   name: Workflow shell scripts must contain set -euo pipefail
   entry: |-

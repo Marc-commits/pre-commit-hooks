@@ -35,6 +35,18 @@
 
 # Changelog
 
+## v0.10.0
+
+### Added
+
+- `snakemake-config-validate`: validates the workflow config files against
+  `workflow/schemas/config.schema.yaml` with a pinned check-jsonschema
+  (`uvx`), reporting all errors at once without parsing the workflow. Default
+  `files:` are `config/config.yaml`, `config/example.config.yaml` and
+  `config/example_config.yaml`; when only the schema changes it validates
+  whichever of those exist. Consumers extend `files:` with further complete
+  configs; overlay files merged via `--configfile` fail standalone.
+
 ## v0.9.0
 
 ### Added
