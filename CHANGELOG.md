@@ -35,6 +35,19 @@
 
 # Changelog
 
+## v0.11.0
+
+### Changed
+
+- `snakedeploy-pin-conda-envs` is now `stages: [manual]`: re-solving the envs
+  drifted the pin files (and needed network) on unrelated commits. Run it with
+  `pre-commit run --hook-stage manual snakedeploy-pin-conda-envs --all-files`.
+
+### Fixed
+
+- `snakemake-config-validate`: wrapped two lines over 80 characters (yamllint);
+  behaviour unchanged.
+
 ## v0.10.0
 
 ### Added

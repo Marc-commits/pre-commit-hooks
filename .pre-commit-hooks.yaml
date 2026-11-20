@@ -454,7 +454,8 @@
     args=()
     for f; do [ "$f" = "$S" ] || args+=("$f"); done
     if [ "${#args[@]}" -eq 0 ]; then
-      for f in config/config.yaml config/example.config.yaml config/example_config.yaml; do
+      for f in config/config.yaml config/example.config.yaml \
+        config/example_config.yaml; do
         [ -f "$f" ] && args+=("$f")
       done
     fi
@@ -463,7 +464,9 @@
       --schemafile "$S" "${args[@]}"
     ' --
   language: system
-  files: '^(config/(config|example[._]config)\.ya?ml|workflow/schemas/config\.schema\.yaml)$'
+  files: >-
+    (?x)^(config/(config|example[._]config)\.ya?ml
+    |workflow/schemas/config\.schema\.yaml)$
   pass_filenames: true
 
 - id: workflow-sh-strict-mode
@@ -506,3 +509,6 @@
   language: system
   files: ^workflow/envs/.*\.ya?ml$
   pass_filenames: true
+  # manual only: re-solving drifts the pin files and needs network on
+  # unrelated commits. Run: pre-commit run --hook-stage manual <id> --all-files
+  stages: [manual]

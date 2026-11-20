@@ -51,6 +51,9 @@ via `pre-commit`'s remote-hook resolution.
   configs, and do not pass `args:`)
   (`conda-env-validate` needs `conda-rattler-solver`:
   `conda install -n base conda-rattler-solver`)
+  (`snakedeploy-pin-conda-envs` is manual-stage only, so pin files don't
+  drift on every commit; run it on demand with
+  `pre-commit run --hook-stage manual snakedeploy-pin-conda-envs --all-files`)
 
 Full hook definitions live in `.pre-commit-hooks.yaml`.
 
